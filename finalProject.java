@@ -29,7 +29,7 @@ public class finalProject extends JFrame implements ActionListener{
 		myTimer = new Timer(60,this);
 		game = new GamePanel();
 		add(game);
-
+		
 		myTimer.start();
  		setVisible(true);
 
@@ -61,13 +61,14 @@ class GamePanel extends JPanel implements KeyListener{
 
 	private HashTable<Block> hardBlocks = new HashTable<Block>();
 	private HashTable<Block> softBlocks = new HashTable<Block>();
+	
 	//two hashtables one for soft blocks and one for hard blocks
 
 	public GamePanel(){
 		setFocusable(true);
 		addKeyListener(this);
 		requestFocus();
-
+		addSoftBlocks(softBlocks);
 		mx = 0;
 		my = 0;
 
@@ -123,13 +124,20 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 		
-		addSoftBlocks();
+		
+		ArrayList<Block> sBlocks = softBlocks.toArray();
+		for(Block b : sBlocks ){
+			g.setColor(new Color(255,0,0));
+			g.fillRect(b.getX()+mx,b.getY(),60,60);
+			//System.out.printf("bX: %d, bY: %d \n",b.getX(),b.getY());
+			g.setColor(new Color(0,255,0));
+			g.drawRect(b.getX()+mx,b.getY(),60,60);
+			}
 		
 		
 	}
 
 	public void start(){
-		
 		moveMan();
 	}
 
@@ -144,14 +152,17 @@ class GamePanel extends JPanel implements KeyListener{
 
 	public void keyTyped(KeyEvent e){}
 
-	public boolean hitHardBlock(int direction){
-		return hardBlocks.collidesBlock((p.getX()+sx)*1000+p.getY(),direction);
+	public boolean hitBlock(int direction){
+		if(hardBlocks.collidesBlock((p.getX()+sx)*1000+p.getY(),direction)!= true && softBlocks.collidesBlock((p.getX()+sx)*1000+p.getY(),direction)!= true){
+			return false;
+			}
+		return true;
 	}
 
 	public void moveMan(){
 		if(keys[KeyEvent.VK_RIGHT]){
 			
-			if(hitHardBlock(RIGHT) == false){
+			if(hitBlock(RIGHT) == false){
 				
 				if(p.getX() > 225 && mx > -450){
 					mx -= 6;
@@ -164,7 +175,7 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 		else if(keys[KeyEvent.VK_LEFT]){
-			if(hitHardBlock(LEFT) == false){
+			if(hitBlock(LEFT) == false){
 				if(p.getX() < 235 && mx < 0){
 					mx += 6;
 					sx -= 6;
@@ -181,24 +192,34 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 		else if(keys[KeyEvent.VK_UP]){
 			//System.out.println("Up");
-			if(hitHardBlock(UP) == false){
+			if(hitBlock(UP) == false){
 				p.moveUp();
 			}
 		}
 		else if(keys[KeyEvent.VK_DOWN]){
 			//System.out.println("Down");
-			if(hitHardBlock(DOWN) == false){
+			if(hitBlock(DOWN) == false){
 				p.moveDown();
 			}
 		}
 	}
 	
-	public void addSoftBlocks(){
+	public void addSoftBlocks(HashTable <Block> blocks){
 		Random rand = new Random();
-		for(int n = 0; n<=20; n++){
-			int ran = rand.nextInt(10);
+		for(int n = 0; n<=40; n++){
+			int randX = rand.nextInt(20)+1; //randomly generated X 
+			int randY = rand.nextInt(8)+1; //randomly generated Y
+			if (randX%2 == 0){
+				randY+=(randY%2==1?1:0);
+				}
+			//randX+=(randX%2==0?1:0);
+			
+			blocks.add(new Block(""+randX*60+","+(randY*60+160)+",60,60"));
+			System.out.printf("randX: %d, randY: %d\n",randX,randY);
+		
 			}
-	
+				/*String info = ""+i+","+j+",60,60";
+				hardBlocks.add(new Block(info));*/
 		}
 	
 	public void addMonster(){
