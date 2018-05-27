@@ -5,8 +5,8 @@ public class Player{
 	int cx,cy; //player's coords
 
 	public Player(){
-		cx = 10;
-		cy = 10;
+		cx = 70;
+		cy = 180;
 	}
 
 	public int getX(){
@@ -18,32 +18,32 @@ public class Player{
 	}
 
 	public void moveUp(){
-		if(cy - 20 > 10){
-			cy -= 20;
+		if(cy - 6 > 24){
+			cy -= 6;
 		}
 
 		//System.out.println(cy);
 	}
 
 	public void moveDown(){
-		if(cy + 20 < 790){
-			cy += 20;
+		if(cy + 6 < 698){
+			cy += 6;
 		}
 
 		//System.out.println(cy);
 	}
 
 	public void moveRight(){
-		if(cx + 20 < 890){
-			cx += 20;
+		if(cx + 6 < 798){
+			cx += 6;
 		}
 
 		//System.out.println(cx);
 	}
 
 	public void moveLeft(){
-		if(cx - 20 > 10){
-			cx -= 20;
+		if(cx - 6 > 24){
+			cx -= 6;
 		}
 
 		//System.out.println(cx);
