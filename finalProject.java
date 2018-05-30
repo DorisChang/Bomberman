@@ -233,20 +233,26 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	public void addSoftBlocks(HashTable <Block> blocks){
 		Random rand = new Random();
-		for(int n = 0; n<=40; n++){ 
+		for(int n = 0; n<70; n++){ 
 			int randX = rand.nextInt(24)+1; //randomly generated X 
 			int randY = rand.nextInt(10); //randomly generated Y
 			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
 				randY+=(randY%2==1?1:0);
 				}
-			blocks.add(new Block(""+randX*45+","+(randY*45+110)+",45,45"));
+			if(randX == 2 && randY == 0 ||  randX == 1 && randY == 1 || randX==1 && randY ==0){
+				addSoftBlocks(blocks);
+				}
+			else{
+				blocks.add(new Block(""+randX*45+","+(randY*45+110)+",45,45"));	
+				}
 			//System.out.printf("randX: %d, randY: %d\n",randX,randY);
 			}
+			
+		System.out.println(blocks.toArray().size());
 		}
 	
 	public void addMonster(int type){
 		Random rand = new Random();
-		
 		int randX = rand.nextInt(20)+1; //randomly generated X 
 		int randY = rand.nextInt(8)+1; //randomly generated Y
 		if (randX%2 == 0){
@@ -267,7 +273,6 @@ class GamePanel extends JPanel implements KeyListener{
 			else{ //current spot is occupied by a soft/hard block
 				addMonster(type);
 				}
-			
 		}
 		
 	public void moveMonsters(Monster m){
