@@ -5,8 +5,8 @@ public class Player{
 	int cx,cy; //player's coords
 
 	public Player(){
-		cx = 70;
-		cy = 180;
+		cx = 52;
+		cy = 117;
 	}
 
 	public int getX(){

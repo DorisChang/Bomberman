@@ -184,10 +184,10 @@ public class HashTable<T>{
  		
  	public Boolean collidesBlock(int key, int direction){
  		if(direction == RIGHT){ //if walking to the right, check blocks to the right side
-	 		for(int x = 0; x<=48; x++){
-	 			for(int y = -66; y <46; y++){ //check for blocks, above and below because coordinates are relative to the upper left corner of both the player and blocks
+	 		for(int x = 0; x<=38; x++){
+	 			for(int y = -48; y <38; y++){ //check for blocks, above and below because coordinates are relative to the upper left corner of both the player and blocks
 	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){ //if a block exists at this coordinate then it collideds
-	 					System.out.println(key+x*1000+y);
+	 					//System.out.println(key+x*1000+y);
 	 				
 	 					return true;
 	 					}
@@ -195,8 +195,8 @@ public class HashTable<T>{
 	 			}
  			}
 	 	else if(direction == LEFT){
-	 		for(int x = -68; x<1; x++){
-	 			for(int y = -66; y <46; y++){
+	 		for(int x = -52; x<1; x++){
+	 			for(int y = -48; y <38; y++){
 	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){
 	 					return true;
 	 					}
@@ -204,8 +204,8 @@ public class HashTable<T>{
 	 			}
  			}
  		else if(direction == UP){
-	 		for(int x = -66; x<=46; x++){
-	 			for(int y = -68; y <1; y++){
+	 		for(int x = -48; x<=36; x++){
+	 			for(int y = -52; y <1; y++){
 	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){
 	 					return true;
 	 					}
@@ -213,8 +213,8 @@ public class HashTable<T>{
 	 			}
  			}
  		else if(direction == DOWN){
-	 		for(int x = -66; x<=46; x++){
-	 			for(int y = 0; y <=48; y++){
+	 		for(int x = -48; x<=34; x++){
+	 			for(int y = 0; y <=40; y++){
 	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){
 	 					return true;
 	 					}
