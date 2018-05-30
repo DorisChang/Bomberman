@@ -95,7 +95,11 @@ class GamePanel extends JPanel implements KeyListener{
 		for(int i = 0 ; i<5; i++){
 			addMonster(0);
 			}
-		
+			
+		System.out.println(monsters.size());
+		for(Monster m: monsters){
+			System.out.printf("X: %d  Y: %d\n",m.getX(),m.getY());
+			}
 	}
 
 	@Override
@@ -229,35 +233,41 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	public void addSoftBlocks(HashTable <Block> blocks){
 		Random rand = new Random();
-		for(int n = 0; n<=40; n++){
-			int randX = rand.nextInt(20)+1; //randomly generated X 
-			int randY = rand.nextInt(8)+1; //randomly generated Y
-			if (randX%2 == 0){
+		for(int n = 0; n<=40; n++){ 
+			int randX = rand.nextInt(24)+1; //randomly generated X 
+			int randY = rand.nextInt(10); //randomly generated Y
+			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
 				randY+=(randY%2==1?1:0);
 				}
-			//randX+=(randX%2==0?1:0);
-			
 			blocks.add(new Block(""+randX*45+","+(randY*45+110)+",45,45"));
 			//System.out.printf("randX: %d, randY: %d\n",randX,randY);
-		
 			}
 		}
 	
 	public void addMonster(int type){
 		Random rand = new Random();
-		Boolean set = false;
-		while(set == false){
-			int randX = rand.nextInt(20)+1; //randomly generated X 
-			int randY = rand.nextInt(8)+1; //randomly generated Y
-			if (randX%2 == 0){
-				randY+=(randY%2==1?1:0);
-				}
-			if(softBlocks.get(randX*45*1000+randY*45+110)==null && hardBlocks.get(randX*1000+randY)==null){
-				monsters.add(new Monster(allMonsters.get(type)+","+randX*45+","+(randY*45+110)));
-				//System.out.println("hello");
-				set = true;
+		
+		int randX = rand.nextInt(20)+1; //randomly generated X 
+		int randY = rand.nextInt(8)+1; //randomly generated Y
+		if (randX%2 == 0){
+			randY+=(randY%2==1?1:0);
+			}
+		if(softBlocks.get(randX*45*1000+randY*45+110)==null && hardBlocks.get(randX*1000+randY+110)==null){ //check that the spot is empty (ie no hardblocks or softblocks at that location)
+			if(softBlocks.get((randX+1)*45*1000+randY*45+110)!=null && softBlocks.get((randX-1)*45*1000+randY*45+110)!=null && hardBlocks.get(randX*1000+randY+45+110)!=null
+				&& hardBlocks.get(randX*1000+randY-45+110)!=null || hardBlocks.get((randX+1)*45*1000+randY*45+110)!=null && hardBlocks.get((randX-1)*45*1000+randY*45+110)!=null
+			    && softBlocks.get(randX*1000+randY+45+110)!=null
+				&& softBlocks.get(randX*1000+randY-45+110)!=null){ //check that the monster won't be immediately surrounded by blocks
+					System.out.println("not valid spot");
+					addMonster(type);
+					}
+			else{ //found a suitable spot
+				monsters.add(new Monster(allMonsters.get(type)+","+randX*45+","+(randY*45+110)));	
 				}
 			}
+			else{ //current spot is occupied by a soft/hard block
+				addMonster(type);
+				}
+			
 		}
 		
 	public void moveMonsters(Monster m){
