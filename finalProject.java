@@ -213,7 +213,7 @@ class GamePanel extends JPanel implements KeyListener{
 				}
 			}
 		}
-		else if(p.getY()>=117 && keys[KeyEvent.VK_UP]){
+		else if(p.getY()>=118 && keys[KeyEvent.VK_UP]){
 			//System.out.println("Up");
 			if(hitBlock(UP) == false){
 				p.moveUp();
