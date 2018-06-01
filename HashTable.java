@@ -140,55 +140,12 @@ public class HashTable<T>{
  			}
  		}
  	}
- 	
- 	/*public Boolean collidesBlock(int key, int direction){ //BEFORE DOUBLING THE SCREEN SIZE
- 		if(direction == RIGHT){ //if walking to the right, check blocks to the right side
-	 		for(int x = 0; x<20; x++){
-	 			for(int y = -23; y <21; y++){ //check for blocks, above and below because coordinates are relative to the upper left corner of both the player and blocks
-	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){ //if a block exists at this coordinate then it collideds
-	 					return true;
-	 					}
-	 				}
-	 			}
- 			}
-	 	else if(direction == LEFT){
-	 		for(int x = -30; x<1; x++){
-	 			for(int y = -23; y <21; y++){
-	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){
-	 					return true;
-	 					}
-	 				}
-	 			}
- 			}
- 		else if(direction == UP){
-	 		for(int x = -25; x<25; x++){
-	 			for(int y = -30; y <1; y++){
-	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){
-	 					return true;
-	 					}
-	 				}
-	 			}
- 			}
- 		else if(direction == DOWN){
-	 		for(int x = -25; x<25; x++){
-	 			for(int y = 0; y <=30; y++){
-	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){
-	 					return true;
-	 					}
-	 				}
-	 			}
- 			}
- 			
- 		return false;
- 		}*/
  		
- 	public Boolean collidesBlock(int key, int direction){
+ 	public Boolean collidesBlock(int key, int direction){ //checks the path of the player in that direction
  		if(direction == RIGHT){ //if walking to the right, check blocks to the right side
 	 		for(int x = 0; x<=38; x++){
 	 			for(int y = -48; y <38; y++){ //check for blocks, above and below because coordinates are relative to the upper left corner of both the player and blocks
 	 				if(key+x*1000+y>0 && this.get(key+x*1000+y)!=null){ //if a block exists at this coordinate then it collideds
-	 					//System.out.println(key+x*1000+y);
-	 				
 	 					return true;
 	 					}
 	 				}
@@ -221,15 +178,30 @@ public class HashTable<T>{
 	 				}
 	 			}
  			}
- 			
  		return false;
  		}
  		
- 	public void clear(){ //turns everything inside the hashtable into nulls
+ 	public void clear(){ //turns everything inside the hashtable into nulls, used for clearing the softblocks after each level
 		table = new ArrayList<LinkedList<T>>();
 		for(int i = 0; i < (int)(items/this.getLoad()); i++){ 
 			table.add(null);
 		}
 	}
-    	
+	
+	public ArrayList<Integer> validDirections(Monster m){
+		ArrayList<Integer> d = new ArrayList<Integer>();
+		for(int i = 1; i<5; i++){
+			if(this.collidesBlock(m.getX()*1000+m.getY(),i)==false){
+				d.add(i);
+				}
+			}
+		String info = "";
+		for(int n: d){
+			info+=n+", ";
+			}
+			
+		System.out.println(info);
+		
+		return d;
+		}
 }
