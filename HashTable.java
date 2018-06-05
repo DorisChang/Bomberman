@@ -141,7 +141,7 @@ public class HashTable<T>{
  		}
  	}
  		
- 	public Boolean collidesBlock(int key, int direction){ //checks the path of the player in that direction
+ 	/*public Boolean collidesBlock(int key, int direction){ //checks the path of the player in that direction
  		if(direction == RIGHT){ //if walking to the right, check blocks to the right side
 	 		for(int x = 0; x<=38; x++){
 	 			for(int y = -48; y <38; y++){ //check for blocks, above and below because coordinates are relative to the upper left corner of both the player and blocks
@@ -179,7 +179,7 @@ public class HashTable<T>{
 	 			}
  			}
  		return false;
- 		}
+ 		}*/
  		
  	public void clear(){ //turns everything inside the hashtable into nulls, used for clearing the softblocks after each level
 		table = new ArrayList<LinkedList<T>>();
