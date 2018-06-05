@@ -50,11 +50,6 @@ public class Player{
 		return null;
 	}*/
 
-<<<<<<< HEAD
-	public Rectangle getRect(){
-		return borderRect;
-	}
-=======
 	public Rectangle getRect(int mx){
 		borderRect = new Rectangle(cx - 3 - mx, cy - 3, 37, 37);
 		return borderRect;
@@ -76,7 +71,6 @@ public class Player{
 		Rectangle tempRect = new Rectangle(cx-3-mx, cy-3,37,40);
 		return tempRect;
 		}
->>>>>>> fixed the collision
 
 	public void moveUp(int y){
 		cy -= y;
