@@ -22,7 +22,7 @@ public class finalProject extends JFrame implements ActionListener{
 		super("Bomberman");
 		
 		setSize(720,690);
-		myTimer = new Timer(60,this);
+		myTimer = new Timer(25,this);
 		game = new GamePanel();
 		add(game);
 		
@@ -50,8 +50,12 @@ class GamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private Player p;
 	private Image tBkg;
-	private int mx;
-	private int sx; //screen movement
+	//private int mx;
+	//private int sx; //screen movement
+	private int mx,sx,bx,by,detonateTime,explosionTime; //time till explosion
+	private Rectangle[]explodeRects = new Rectangle[4];
+
+	private boolean dropBomb; //if bomb is on screen
 	
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	
@@ -65,12 +69,17 @@ class GamePanel extends JPanel implements KeyListener{
 		requestFocus();
 		newGrid(grid);
 		addSoftBlocks(50);
+
+		p = new Player();
 		
 		mx = 0;
 
-		tBkg = new ImageIcon("temp_bkg.png").getImage();
+		detonateTime = 50;
+		explosionTime = 30;
 
-		p = new Player();
+		dropBomb = false;
+
+		tBkg = new ImageIcon("temp_bkg.png").getImage();
 
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 			
@@ -85,12 +94,6 @@ class GamePanel extends JPanel implements KeyListener{
 		catch(IOException ex){
 			System.out.println("monsters.txt not found"); //couldn't find the txt file
 		}
-		
-		//addMonster(0);
-		//System.out.println(monsters.size());
-		//for(Monster m: monsters){
-			//System.out.printf("X: %d  Y: %d\n",m.getX(),m.getY());
-		//}
 	}
 
 	@Override
@@ -137,11 +140,56 @@ class GamePanel extends JPanel implements KeyListener{
 		
 		Rectangle bRect = p.getRect(0);
 		g.drawRect((int)(bRect.getX()),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+
+		if(dropBomb == true && detonateTime != 0){
+			g.setColor(new Color(0,0,0));
+			g.fillRect(bx+mx,by+60,39,39);
+		}
+
+		if(dropBomb == true && explosionTime > 0 && detonateTime == 0){
+			g.setColor(new Color(255,100,0));
+
+			g.fillRect(bx+mx,by+60,39,39);
+			/*g.fillRect(bx+explosionTime+mx-30,by+50,30-explosionTime,24);//left Rectangle
+			g.fillRect(bx+24+mx,by+50,30-explosionTime,24);//right Rectangle
+			g.fillRect(bx+mx,by+explosionTime+20,24,30-explosionTime); //up
+			g.fillRect(bx+mx,by+74,24,30-explosionTime);*/
+
+			g.fillRect((int)explodeRects[0].getX(),(int)explodeRects[0].getY(),(int)explodeRects[0].getWidth(),(int)explodeRects[0].getHeight());
+			g.fillRect((int)explodeRects[1].getX(),(int)explodeRects[1].getY(),(int)explodeRects[1].getWidth(),(int)explodeRects[1].getHeight());
+			g.fillRect((int)explodeRects[2].getX(),(int)explodeRects[2].getY(),(int)explodeRects[2].getWidth(),(int)explodeRects[2].getHeight());
+			g.fillRect((int)explodeRects[3].getX(),(int)explodeRects[3].getY(),(int)explodeRects[3].getWidth(),(int)explodeRects[3].getHeight());
+		}
 		
 	}
 
 	public void start(){
 		moveMan();
+
+		explodeRects[0] = new Rectangle(bx+explosionTime+mx-45,by+60,45-explosionTime,39);
+		explodeRects[1] = new Rectangle(bx+39+mx,by+60,45-explosionTime,39);
+		explodeRects[2] = new Rectangle(bx+mx,by+explosionTime+20,39,45-explosionTime);
+		explodeRects[3] = new Rectangle(bx+mx,by+99,39,45-explosionTime);
+
+		tick();
+	}
+
+	public void tick(){
+		if(dropBomb == true){
+			if(detonateTime > 0){
+				detonateTime -= 1;
+			}
+
+			else if(detonateTime == 0 && explosionTime > 0){
+				explosionTime -= 1;
+			}
+
+			else if(detonateTime == 0 && explosionTime == 0){
+				dropBomb = false;
+				detonateTime = 50;
+				explosionTime = 30; //POWERUP EXCEPTION: if lvl of bomb increases, explosionTime = 30 * lvl;
+			}
+		}
 	}
 
 	//ALL THREE MUST BE PRESENT
@@ -284,7 +332,7 @@ class GamePanel extends JPanel implements KeyListener{
 				p.moveLeft(0);
 			}
 		}
-		else if(p.getY()>=118 && keys[KeyEvent.VK_UP]){
+		else if(keys[KeyEvent.VK_UP]){
 			if(hitBlock(UP) == false){
 				p.moveUp(3);
 			}
@@ -300,6 +348,23 @@ class GamePanel extends JPanel implements KeyListener{
 
 			else if(hitBlock(DOWN) == true){
 				p.moveDown(0);
+			}
+		}
+
+		if(keys[KeyEvent.VK_X]){
+			if(dropBomb == false){ //POWERUP EXCEPTION: if(dropBomb == false && multibomb == false) >> for multibomb, cant put two bombs same spot
+				dropBomb = true;
+
+				//double px = p.getX();
+				//double py = p.getY();
+
+				//bx = (int)(Math.round((p.getX()-mx)/45))*45+3;
+				//by = (int)(Math.round((p.getY()-65)/45))*45+3;
+
+				bx = (int)(Math.round(p.getX()+15.5-mx)/45)*45+3; //closest column blocks
+				by = (int)(Math.round(p.getY()+15.5-60)/45)*45+9; //closest row
+
+				grid[(by-9)/45][(bx-3)/45] = new Block(bx,by,3); //bomb is 3
 			}
 		}
 	}
