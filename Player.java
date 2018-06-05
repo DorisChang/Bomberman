@@ -50,9 +50,33 @@ public class Player{
 		return null;
 	}*/
 
+<<<<<<< HEAD
 	public Rectangle getRect(){
 		return borderRect;
 	}
+=======
+	public Rectangle getRect(int mx){
+		borderRect = new Rectangle(cx - 3 - mx, cy - 3, 37, 37);
+		return borderRect;
+	}
+	
+	public Rectangle getRightRect(int mx){
+		Rectangle tempRect = new Rectangle(cx-3-mx, cy-3,40,37);
+		return tempRect;
+		}
+	public Rectangle getLeftRect(int mx){
+		Rectangle tempRect = new Rectangle(cx-6-mx, cy-3,37,37);
+		return tempRect;
+		}
+	public Rectangle getUpRect(int mx){
+		Rectangle tempRect = new Rectangle(cx-3-mx, cy-6,37,37);
+		return tempRect;
+		}
+	public Rectangle getDownRect(int mx){
+		Rectangle tempRect = new Rectangle(cx-3-mx, cy-3,37,40);
+		return tempRect;
+		}
+>>>>>>> fixed the collision
 
 	public void moveUp(int y){
 		cy -= y;

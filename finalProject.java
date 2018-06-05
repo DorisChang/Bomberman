@@ -57,20 +57,19 @@ class GamePanel extends JPanel implements KeyListener{
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	
 	private Block grid[][] = new Block [13][27];
+<<<<<<< HEAD
 	// private HashTable<Integer, Block> hardBlocks = new HashTable<Integer, Block>();
+=======
+>>>>>>> fixed the collision
 	private ArrayList<Monster> monsters = new ArrayList<Monster>();
-	
 	private ArrayList<String> allMonsters = new ArrayList<String>();
 	
-	//two hashtables one for soft blocks and one for hard blocks
-
 	public GamePanel(){
 		setFocusable(true);
 		addKeyListener(this);
 		requestFocus();
 		newGrid(grid);
 		addSoftBlocks(50);
-		//System.out.println(Arrays.deepToString(grid));
 		
 		mx = 0;
 
@@ -81,7 +80,7 @@ class GamePanel extends JPanel implements KeyListener{
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 			
 		
-		try{ //reading the monster file and adding it to the HashTable of emotions
+		try{ //reading the monster file 
 			Scanner inFile = new Scanner(new BufferedReader(new FileReader("monsters.txt")));
 			while(inFile.hasNextLine()){
 				String nextLine = inFile.nextLine();
@@ -148,7 +147,11 @@ class GamePanel extends JPanel implements KeyListener{
 		g.drawRect((int)(uRect.getX()),(int)(uRect.getY()),(int)(uRect.getWidth()),(int)(uRect.getHeight()));
 		g.drawRect((int)(dRect.getX()),(int)(dRect.getY()),(int)(dRect.getWidth()),(int)(dRect.getHeight()));
 		g.drawRect((int)(lRect.getX()),(int)(lRect.getY()),(int)(lRect.getWidth()),(int)(lRect.getHeight()));*/
+<<<<<<< HEAD
 		Rectangle bRect = p.getRect();
+=======
+		Rectangle bRect = p.getRect(0);
+>>>>>>> fixed the collision
 		g.drawRect((int)(bRect.getX()),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
 		
 	}
@@ -171,6 +174,7 @@ class GamePanel extends JPanel implements KeyListener{
 	public Boolean hitBlock(int direction){
 		int gX = (int)(Math.round(p.getX()+15.5-mx)/45); //closest column blocks
 		int gY = (int)(Math.round(p.getY()+15.5-65)/45); //closest row
+<<<<<<< HEAD
 
 		Rectangle bRect = p.getRect();
 
@@ -179,13 +183,44 @@ class GamePanel extends JPanel implements KeyListener{
 				Rectangle r = (grid[gY][gX+1]).getRect(); //get rect of that block
 				//Rectangle rR = p.getRect(RIGHT); //get the rect on the 
 
+=======
+		
+		//int rX = (int) (Math.round(p.getRect().getX()-3));
+		//int rY = (int) (Math.round(p.getRect().getY()-3));
+		//Rectangle bRect = p.getRect(mx);
+		
+		if(direction == RIGHT){
+			Rectangle bRect = p.getRightRect(mx);
+			
+			if(grid[gY][gX+1] != null){ //if there is a block there 
+				Rectangle r = (grid[gY][gX+1]).getRect(); //get rect of that block
+				//Rectangle rR = p.getRect(RIGHT); //get the rect on the 
+>>>>>>> fixed the collision
 				if(bRect.intersects(r)){
 					return true;
 				}
 			}
+<<<<<<< HEAD
 		}
 
 		else if(direction == LEFT){
+=======
+			
+			Rectangle r2 = new Rectangle(45*(gX+1),45*(gY+1)+65,45,45); 
+			if(bRect.intersects(r2)){
+				return true;
+			}
+			
+			Rectangle r3 = new Rectangle(45*(gX+1),45*(gY-1)+65,45,45);
+			if(bRect.intersects(r3)){
+				return true;
+			}
+		}
+
+		else if(direction == LEFT){
+			Rectangle bRect = p.getLeftRect(mx);
+			
+>>>>>>> fixed the collision
 			if(grid[gY][gX-1] != null){
 				Rectangle r = (grid[gY][gX-1]).getRect();
 				//Rectangle rL = p.getRect(LEFT);
@@ -194,9 +229,26 @@ class GamePanel extends JPanel implements KeyListener{
 					return true;
 				}
 			}
+<<<<<<< HEAD
 		}
 
 		else if(direction == UP){
+=======
+			Rectangle r2 = new Rectangle(45*(gX-1),45*(gY+1)+65,45,45); 
+			if(bRect.intersects(r2)){
+				return true;
+			}
+			
+			Rectangle r3 = new Rectangle(45*(gX-1),45*(gY-1)+65,45,45);
+			if(bRect.intersects(r3)){
+				return true;
+			}
+		}
+
+		else if(direction == UP){
+			Rectangle bRect = p.getUpRect(mx);
+			
+>>>>>>> fixed the collision
 			if(grid[gY-1][gX] != null){
 				Rectangle r = (grid[gY-1][gX]).getRect();
 				//Rectangle rU = p.getRect(UP);
@@ -205,6 +257,7 @@ class GamePanel extends JPanel implements KeyListener{
 					return true;
 				}
 			}
+<<<<<<< HEAD
 		}
 
 		else if(direction == DOWN){
@@ -221,6 +274,40 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 
+=======
+			Rectangle r2 = new Rectangle(45*(gX+1),45*(gY-1)+65,45,45); 
+			if(bRect.intersects(r2)){
+				return true;
+			}
+			
+			Rectangle r3 = new Rectangle(45*(gX-1),45*(gY-1)+65,45,45);
+			if(bRect.intersects(r3)){
+				return true;
+			}
+		}
+
+		else if(direction == DOWN){
+			Rectangle bRect = p.getDownRect(mx);
+			
+			if(grid[gY+1][gX] != null){
+				Rectangle r = (grid[gY+1][gX]).getRect();
+
+				if(bRect.intersects(r)){
+					return true;
+				}
+			}
+			Rectangle r2 = new Rectangle(45*(gX+1),45*(gY+1)+65,45,45); 
+			if(bRect.intersects(r2)){
+				return true;
+			}
+			
+			Rectangle r3 = new Rectangle(45*(gX-1),45*(gY+1)+65,45,45);
+			if(bRect.intersects(r3)){
+				return true;
+			}
+		}
+
+>>>>>>> fixed the collision
 		return false;
 	}
 
