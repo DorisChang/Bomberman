@@ -86,10 +86,8 @@ class GamePanel extends JPanel implements KeyListener{
 		catch(IOException ex){
 			System.out.println("monsters.txt not found"); //couldn't find the txt file
 		}
-		for(int i =0 ; i<5; i++){
-			addMonster(0);
-			}
 		
+		addMonster(0);
 		//System.out.println(monsters.size());
 		//for(Monster m: monsters){
 			//System.out.printf("X: %d  Y: %d\n",m.getX(),m.getY());
@@ -133,9 +131,7 @@ class GamePanel extends JPanel implements KeyListener{
 			g.fillRect(m.getX()+mx,m.getY(),31,31);
 			//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
 			g.setColor(new Color(0,0,0));
-			g.drawRect(m.getX()+mx,m.getY(),31,31);
-			Rectangle bRect = m.getRect(0);
-			g.drawRect((int)(bRect.getX()),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+			g.drawRect(m.getX(),m.getY(),31,31);
 		}
 
 		g.setColor(new Color(0,0,255));
@@ -319,41 +315,31 @@ class GamePanel extends JPanel implements KeyListener{
 		int randX = rand.nextInt(24)+1; //randomly generated X 
 		int randY = rand.nextInt(10)+1; //randomly generated Y
 		ArrayList<Integer> path = new ArrayList<Integer>();
-		path.add(0);
 			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
 				randY+=(randY%2==0?1:0); //adjusts to an available position
 			}
 			if(grid[randY][randX]==null){ //if this is an available position
-				Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path);
-				monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
-				m.setCurrentDirection(validRandomDirection(m));
+				monsters.add(new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72)+","+RIGHT,path)); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
 			}
 			else{
 				addMonster(type);	
 				}
 	}
 	
-	public int validRandomDirection(Monster m){ //finds all valid directions and return a random one
+	/*public int validRandomDirection(Monster m){ //finds all valid directions and return a random one
 		ArrayList<Integer> v = new ArrayList<Integer>(); //contains all valid directions
 		for(int d = 1; d<5; d++){
 			if(hitBlock(m,d)==false){
 				v.add(d);
 			}
 		}
-		if(v.size()==0){
-			return 5;
-			}
-		else{
-			Random rand = new Random();
-			int randIndex = rand.nextInt(v.size());
-			System.out.println(v);
-			return v.get(randIndex);
-			}
-	}
+		System.out.println(v);
+		return 0;
+	}*/
 	
-	public Boolean hitBlock(Monster m,int direction){
-		int gX = (int)(Math.round(m.getX()+15.5-mx)/45); //closest column blocks
-		int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
+	/*public Boolean hitBlock(Monster m,int direction){
+		int gX = (int)(Math.round(p.getX()+15.5-mx)/45); //closest column blocks
+		int gY = (int)(Math.round(p.getY()+15.5-65)/45); //closest row
 		
 		if(direction == RIGHT){
 			Rectangle bRect = m.getRightRect(mx);
@@ -375,154 +361,3 @@ class GamePanel extends JPanel implements KeyListener{
 				return true;
 			}
 		}
-
-		else if(direction == LEFT){
-			Rectangle bRect = m.getLeftRect(mx);
-			
-			if(grid[gY][gX-1] != null){
-				Rectangle r = (grid[gY][gX-1]).getRect();
-				//Rectangle rL = p.getRect(LEFT);
-
-				if(bRect.intersects(r)){
-					return true;
-				}
-			}
-			Rectangle r2 = new Rectangle(45*(gX-1),45*(gY+1)+65,45,45); 
-			if(bRect.intersects(r2)){
-				return true;
-			}
-			
-			Rectangle r3 = new Rectangle(45*(gX-1),45*(gY-1)+65,45,45);
-			if(bRect.intersects(r3)){
-				return true;
-			}
-		}
-
-		else if(direction == UP){
-			Rectangle bRect = m.getUpRect(mx);
-			
-			if(grid[gY-1][gX] != null){
-				Rectangle r = (grid[gY-1][gX]).getRect();
-				//Rectangle rU = p.getRect(UP);
-
-				if(bRect.intersects(r)){
-					return true;
-				}
-			}
-			Rectangle r2 = new Rectangle(45*(gX+1),45*(gY-1)+65,45,45); 
-			if(bRect.intersects(r2)){
-				return true;
-			}
-			
-			Rectangle r3 = new Rectangle(45*(gX-1),45*(gY-1)+65,45,45);
-			if(bRect.intersects(r3)){
-				return true;
-			}
-		}
-
-		else if(direction == DOWN){
-			Rectangle bRect = m.getDownRect(mx);
-			
-			if(grid[gY+1][gX] != null){
-				Rectangle r = (grid[gY+1][gX]).getRect();
-
-				if(bRect.intersects(r)){
-					return true;
-				}
-			}
-			Rectangle r2 = new Rectangle(45*(gX+1),45*(gY+1)+65,45,45); 
-			if(bRect.intersects(r2)){
-				return true;
-			}
-			
-			Rectangle r3 = new Rectangle(45*(gX-1),45*(gY+1)+65,45,45);
-			if(bRect.intersects(r3)){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
-	//	if(m.getType()=="ballom"){
-			//if((m.getY()-72)%45==0 && (m.getX()-7)%45==0){
-				System.out.println(m.getCurrentDirection());
-				if(hitBlock(m,m.getCurrentDirection())){
-					System.out.println("hit block, change direction");
-					m.setCurrentDirection(validRandomDirection(m));
-					}
-			//	}
-			m.moveStraight(3);
-		//	}
-		/*else{
-			if(path.size()>0){
-				System.out.printf("X: %d Y: %d ",(m.getX()-7)%45,(m.getY()-72)%45);
-				System.out.println(path.get(0));
-				int nextInstruction = path.get(0); //gets the next direction the monster should head to
-				if(nextInstruction==RIGHT){
-					m.setCurrentDirection(RIGHT);
-				}
-				else if(nextInstruction==LEFT){
-					m.setCurrentDirection(LEFT);
-				}
-				else if(nextInstruction==UP){
-					m.setCurrentDirection(UP);
-				}
-				else if(nextInstruction==DOWN){
-					m.setCurrentDirection(DOWN);
-				}
-				
-				m.moveStraight(3); //move in the specified direction
-				
-				if((m.getY()-72)%45==0 && (m.getX()-7)%45==0){ //if a direction was followed, remove it 
-					path.remove(0);
-				}
-			}
-
-		}*/
-	}
-	
-	public void newGrid(Block grid[][]){ //resets the 2D grid of the map with the borders and hardblocks
-		for(int row=0; row<13; row++){ //clear the grid to be just nulls
-			Arrays.fill(grid[row],null);
-		}
-
-		for(int x = 0; x<=26; x++){ //add the top and bottom borders
-			for(int y = 0; y<13; y+=12){
-				grid[y][x]= new Block(x,y,1); //hard block
-			}
-		}
-		for(int x = 0; x<27; x+=26){ //add the left and right borders
-			for(int y = 0; y<13; y+=1){
-				grid[y][x]=new Block(x,y,1); //hard block
-			}
-		} 
-		for(int x = 2; x<25; x+=2){ //add the hardblocks in the middle
-			for(int y = 2; y<11; y+=2){
-				grid[y][x]= new Block(x,y,1); //hard block
-			}
-		}
-	}
-	
-	public void addSoftBlocks(int num){
-		Random rand = new Random();
-		for(int n = 0; n<num; n++){ 
-			int randX = rand.nextInt(24)+1; //randomly generated X 
-			int randY = rand.nextInt(10)+1; //randomly generated Y
-			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
-				randY+=(randY%2==0?1:0);
-			}
-
-			if(randX == 2 && randY == 1 ||  randX == 1 && randY == 1 || randX==1 && randY ==2){
-                addSoftBlocks(1);
-            }
-
-			else{
-				//blocks.add(new Block(""+randX*45+","+(randY*45+110)+",45,45"));
-				grid[randY][randX]= new Block(randX,randY,2); //soft block
-			}
-			//System.out.printf("randX: %d, randY: %d\n",randX,randY);
-		}
-		//System.out.println(blocks.toArray().size());
-	}
-}

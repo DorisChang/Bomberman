@@ -5,16 +5,16 @@
 //http://bomberman.wikia.com/wiki/Ballom
 
 import java.awt.Rectangle;
-
 import java.util.*;
+
 public class Monster {
-	int x, y, speed, hits, points, currentDirection;  
+	int x, y, speed, hits, points, currentDirection; 
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	String type;
 	ArrayList<Integer> path;
 	private Rectangle borderRect;
 	
-    public Monster(String info,ArrayList<Integer> p) { //info <type, speed, hits, points, x, y>
+    public Monster(String info, ArrayList<Integer> p) { //info <type, speed, hits, points, x, y>
     	String [] infoList = info.split(",");
     	type = infoList[0];
     	speed = Integer.parseInt(infoList[1]);
@@ -22,12 +22,20 @@ public class Monster {
     	points = Integer.parseInt(infoList[3]);
     	x = Integer.parseInt(infoList[4]);
     	y = Integer.parseInt(infoList[5]);
-    	
-    	//currentDirection = Integer.parseInt(infoList[6]);
     	currentDirection = p.get(0);
-    	borderRect = new Rectangle(x - 3, x - 3, 37, 37);
-    	
     	path = p;
+    	borderRect = new Rectangle(x - 3, y - 3, 37, 37);
+    	
+    	/*path.add(LEFT);
+    	path.add(RIGHT);
+		path.add(DOWN);
+		path.add(LEFT);
+		path.add(RIGHT);
+		path.add(DOWN);
+		path.add(LEFT);
+		path.add(RIGHT);
+		path.add(DOWN);
+		path.add(LEFT);*/
     }
     
     public int getX(){
@@ -46,39 +54,21 @@ public class Monster {
     	return type;
     	}
     	
+    public ArrayList<Integer> getPath(){
+    	return path;
+    	}
+    	
     public int setHits(int n){ //decrease the number of lives of a monster
     	hits -= n;
     	return hits;
     	}
     
-    public int xDirection(int pX){ //return -1 for left, 1 for right
-    	if(pX<x){
-    		return -1;
-    		}
-    	else{
-    		return 1;
-    		}
-    	}
-    	
-    public int yDirection(int pY){ //return -1 for up, 1 for down
-    	if(pY<y){
-    		return -1;
-    		}
-    	else{
-    		return 1;
-    		}
-    	}
-    
-    public void setPath(ArrayList<Integer> np){
-    	path = np;
-    	}
-    	
-    public ArrayList<Integer> getPath(){
-    	return path;
-    	}
-    	
     public void setCurrentDirection(int d){
     	currentDirection = d;
+    	}
+    
+    public int getCurrentDirection(){
+    	return currentDirection;
     	}
     	
     public void moveStraight(int n){
@@ -96,26 +86,26 @@ public class Monster {
     		moveDown(n);
     		}
     	}
-    	
+    
     public Rectangle getRect(int mx){
-		borderRect = new Rectangle(x - 3 - mx, y - 3, 37, 37);
+		borderRect = new Rectangle(x - 7 - mx, y - 7, 45, 45);
 		return borderRect;
 	}
 	
 	public Rectangle getRightRect(int mx){
-		Rectangle tempRect = new Rectangle(x-3-mx, y-3,40,37);
+		Rectangle tempRect = new Rectangle(x-7-mx, y-7,46,45);
 		return tempRect;
 		}
 	public Rectangle getLeftRect(int mx){
-		Rectangle tempRect = new Rectangle(x-6-mx, y-3,37,37);
+		Rectangle tempRect = new Rectangle(x-8-mx, y-7,45,45);
 		return tempRect;
 		}
 	public Rectangle getUpRect(int mx){
-		Rectangle tempRect = new Rectangle(x-3-mx, y-6,37,37);
+		Rectangle tempRect = new Rectangle(x-7-mx, y-8,45,45);
 		return tempRect;
 		}
 	public Rectangle getDownRect(int mx){
-		Rectangle tempRect = new Rectangle(x-3-mx, y-3,37,40);
+		Rectangle tempRect = new Rectangle(x-7-mx, y-7,45,46);
 		return tempRect;
 		}
     
