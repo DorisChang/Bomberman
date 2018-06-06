@@ -8,13 +8,13 @@ import java.awt.Rectangle;
 import java.util.*;
 
 public class Monster {
-	int x, y, speed, hits, points, currentDirection; 
+	int x, y, mx, speed, hits, points, currentDirection; 
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	String type;
 	ArrayList<Integer> path;
 	private Rectangle borderRect;
 	
-    public Monster(String info, ArrayList<Integer> p) { //info <type, speed, hits, points, x, y>
+    public Monster(String info, ArrayList<Integer> p, Integer mx) { //info <type, speed, hits, points, x, y>
     	String [] infoList = info.split(",");
     	type = infoList[0];
     	speed = Integer.parseInt(infoList[1]);
@@ -24,7 +24,7 @@ public class Monster {
     	y = Integer.parseInt(infoList[5]);
     	currentDirection = p.get(0);
     	path = p;
-    	borderRect = new Rectangle(x - 3, y - 3, 37, 37);
+    	borderRect = new Rectangle(x - 7-mx, y - 7, 45, 45);
     	
     	/*path.add(LEFT);
     	path.add(RIGHT);

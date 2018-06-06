@@ -22,7 +22,7 @@ public class finalProject extends JFrame implements ActionListener{
 		super("Bomberman");
 		
 		setSize(720,690);
-		myTimer = new Timer(60,this);
+		myTimer = new Timer(25,this);
 		game = new GamePanel();
 		add(game);
 		
@@ -130,10 +130,10 @@ class GamePanel extends JPanel implements KeyListener{
 		//DRAWING MONSTERS aka enemies
 		for(Monster m : monsters){
 			g.setColor(new Color(250,0,0));
-			g.fillRect(m.getX()+mx,m.getY(),31,31);
+			g.fillRect(m.getX(),m.getY(),31,31);
 			//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
 			g.setColor(new Color(0,0,0));
-			g.drawRect(m.getX()+mx,m.getY(),31,31);
+			g.drawRect(m.getX(),m.getY(),31,31);
 			Rectangle bRect = m.getRect(0);
 			g.drawRect((int)(bRect.getX()),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
 		}
@@ -324,7 +324,7 @@ class GamePanel extends JPanel implements KeyListener{
 				randY+=(randY%2==0?1:0); //adjusts to an available position
 			}
 			if(grid[randY][randX]==null){ //if this is an available position
-				Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path);
+				Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
 				monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
 				m.setCurrentDirection(validRandomDirection(m));
 			}
@@ -355,10 +355,12 @@ class GamePanel extends JPanel implements KeyListener{
 		int gX = (int)(Math.round(m.getX()+15.5-mx)/45); //closest column blocks
 		int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
 		
+		System.out.printf("mX: %d mY: %d\n",gX,gY);
+		
 		if(direction == RIGHT){
 			Rectangle bRect = m.getRightRect(mx);
 			
-			if(grid[gY][gX+1] != null){ //if there is a block there 
+			if(gX<26 && grid[gY][gX+1] != null){ //if there is a block there 
 				Rectangle r = (grid[gY][gX+1]).getRect(); //get rect of that block
 				if(bRect.intersects(r)){
 					return true;
@@ -379,7 +381,7 @@ class GamePanel extends JPanel implements KeyListener{
 		else if(direction == LEFT){
 			Rectangle bRect = m.getLeftRect(mx);
 			
-			if(grid[gY][gX-1] != null){
+			if(gX>0 && grid[gY][gX-1] != null){
 				Rectangle r = (grid[gY][gX-1]).getRect();
 				//Rectangle rL = p.getRect(LEFT);
 
@@ -401,7 +403,7 @@ class GamePanel extends JPanel implements KeyListener{
 		else if(direction == UP){
 			Rectangle bRect = m.getUpRect(mx);
 			
-			if(grid[gY-1][gX] != null){
+			if(gY>0 && grid[gY-1][gX] != null){
 				Rectangle r = (grid[gY-1][gX]).getRect();
 				//Rectangle rU = p.getRect(UP);
 
@@ -423,7 +425,7 @@ class GamePanel extends JPanel implements KeyListener{
 		else if(direction == DOWN){
 			Rectangle bRect = m.getDownRect(mx);
 			
-			if(grid[gY+1][gX] != null){
+			if(gY<12 && grid[gY+1][gX] != null){
 				Rectangle r = (grid[gY+1][gX]).getRect();
 
 				if(bRect.intersects(r)){
@@ -444,16 +446,18 @@ class GamePanel extends JPanel implements KeyListener{
 	}
 	
 	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
-	//	if(m.getType()=="ballom"){
+		if(m.getType().equals("ballom")){
 			//if((m.getY()-72)%45==0 && (m.getX()-7)%45==0){
+				
 				System.out.println(m.getCurrentDirection());
 				if(hitBlock(m,m.getCurrentDirection())){
 					System.out.println("hit block, change direction");
 					m.setCurrentDirection(validRandomDirection(m));
 					}
 			//	}
+		
 			m.moveStraight(3);
-		//	}
+			}
 		/*else{
 			if(path.size()>0){
 				System.out.printf("X: %d Y: %d ",(m.getX()-7)%45,(m.getY()-72)%45);
