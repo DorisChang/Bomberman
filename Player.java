@@ -7,12 +7,14 @@ public class Player{
 	private int cx,cy; //player's coords
 	//Rectangle uRect, dRect, lRect, rRect;
 	private Rectangle borderRect;
+	private Rectangle actualRect;
 
 	public Player(){
 		cx = 52;
 		cy = 117;
 
 		borderRect = new Rectangle(cx - 3, cy - 3, 37, 37);
+		actualRect = new Rectangle(cx, cy, 31, 31);
 
 		/*uRect = new Rectangle(cx,cy-6,31,6);
 		dRect = new Rectangle(cx,cy+31,31,6);
@@ -27,6 +29,11 @@ public class Player{
 	public int getY(){
 		return cy;
 	}
+	
+	public Rectangle getActualRect(int mx){
+		actualRect.setLocation(cx-mx, cy);
+		return actualRect;
+		}
 
 	/*public Rectangle getRect(int d){
 		if(d == 1){

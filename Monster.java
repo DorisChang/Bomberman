@@ -12,7 +12,8 @@ public class Monster {
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	String type;
 	ArrayList<Integer> path;
-	private Rectangle borderRect;
+	private Rectangle borderRect; //a 45 x 45 square that is used for keeping the monster in the middle of aisles 
+	private Rectangle actualRect; //a 31 x 31 square of the actual monster seen on screen
 	
     public Monster(String info, ArrayList<Integer> p, Integer mx) { //info <type, speed, hits, points, x, y>
     	String [] infoList = info.split(",");
@@ -24,7 +25,8 @@ public class Monster {
     	y = Integer.parseInt(infoList[5]);
     	currentDirection = p.get(0);
     	path = p;
-    	borderRect = new Rectangle(x - 7-mx, y - 7, 45, 45);
+    	actualRect = new Rectangle(x , y , 31, 31);
+    	borderRect = new Rectangle(x - 7, y - 7, 45, 45);
     	
     	/*path.add(LEFT);
     	path.add(RIGHT);
@@ -58,6 +60,11 @@ public class Monster {
     	return path;
     	}
     	
+    public Rectangle getActualRect(){
+    	actualRect.setLocation(x, y);
+    	return actualRect;
+    	}
+    	
     public int setHits(int n){ //decrease the number of lives of a monster
     	hits -= n;
     	return hits;
@@ -87,25 +94,25 @@ public class Monster {
     		}
     	}
     
-    public Rectangle getRect(int mx){
-		borderRect = new Rectangle(x - 7 - mx, y - 7, 45, 45);
+    public Rectangle getRect(){
+		borderRect = new Rectangle(x - 7 , y - 7, 45, 45);
 		return borderRect;
 	}
 	
-	public Rectangle getRightRect(int mx){
-		Rectangle tempRect = new Rectangle(x-7-mx, y-7,46,45);
+	public Rectangle getRightRect(){
+		Rectangle tempRect = new Rectangle(x-7, y-7,46,45);
 		return tempRect;
 		}
-	public Rectangle getLeftRect(int mx){
-		Rectangle tempRect = new Rectangle(x-8-mx, y-7,45,45);
+	public Rectangle getLeftRect(){
+		Rectangle tempRect = new Rectangle(x-8, y-7,45,45);
 		return tempRect;
 		}
-	public Rectangle getUpRect(int mx){
-		Rectangle tempRect = new Rectangle(x-7-mx, y-8,45,45);
+	public Rectangle getUpRect(){
+		Rectangle tempRect = new Rectangle(x-7, y-8,45,45);
 		return tempRect;
 		}
-	public Rectangle getDownRect(int mx){
-		Rectangle tempRect = new Rectangle(x-7-mx, y-7,45,46);
+	public Rectangle getDownRect(){
+		Rectangle tempRect = new Rectangle(x-7, y-7,45,46);
 		return tempRect;
 		}
     
