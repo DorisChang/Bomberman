@@ -569,12 +569,34 @@ class GamePanel extends JPanel implements KeyListener{
 		if(m.getType().equals("ballom")){
 			int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
 			int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
+			ArrayList<Integer> v = new ArrayList<Integer>(); 
 			
 			if(gX%2==1 && gY%2==1){
-				
+				if(m.getCurrentDirection()==1 || m.getCurrentDirection()==-1){ //if monster is going left/right
+					if(hitBlock(m,UP)==false){
+						v.add(UP);
+						}
+					if(hitBlock(m,DOWN)==false){
+						v.add(DOWN);
+						}
+					}
+				else if(m.getCurrentDirection()==2 || m.getCurrentDirection()==-2){ //if monster is going up/down
+					if(hitBlock(m,LEFT)==false){
+						v.add(LEFT);
+						}
+					if(hitBlock(m,RIGHT)==false){
+						v.add(RIGHT);
+						}
+					}
 				}
-			
-			if(hitBlock(m,m.getCurrentDirection())){
+				
+			if(v.size()>0){
+				Random rand = new Random();
+				int randIndex = rand.nextInt(v.size());
+				m.setCurrentDirection(v.get(randIndex));
+			}
+				
+			else if(hitBlock(m,m.getCurrentDirection())){
 				m.setCurrentDirection(validRandomDirection(m));
 			}
 
@@ -590,7 +612,7 @@ class GamePanel extends JPanel implements KeyListener{
 			
 			if(pHitTimer==0 && pRect.intersects(mRect)){
 				System.out.println("player hit monster");
-				pHitTimer = 60;
+				pHitTimer = 50;
 				lives-=1;
 				return true;
 			}
