@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.Font;
 import javax.swing.*;
 import java.awt.image.*;
 import javax.swing.Timer;
@@ -51,7 +52,9 @@ class GamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private Player p;
 	private Image tBkg;
-	private int mx,sx,bx,by,detonateTime,explosionTime; //time till explosion
+	private int mx,sx,bx,by,detonateTime,explosionTime;
+	private int pHitTimer = 0; 
+	private int lives = 3;
 	private Rectangle[]explodeRects = new Rectangle[4];
 
 	private boolean dropBomb; //if bomb is on screen
@@ -61,6 +64,8 @@ class GamePanel extends JPanel implements KeyListener{
 	private Block grid[][] = new Block [13][27];
 	private ArrayList<Monster> monsters = new ArrayList<Monster>();
 	private ArrayList<String> allMonsters = new ArrayList<String>();
+	
+	//private Font font = new Font("Comic Sans",Font.PLAIN,50);
 	
 	
 	public GamePanel(){
@@ -107,6 +112,7 @@ class GamePanel extends JPanel implements KeyListener{
 	@Override
 	public void paintComponent(Graphics g){
 		//g.drawImage(tBkg,mx,0,this);
+		
 		g.setColor(finalProject.FLOOR_COLOUR);
 		g.fillRect(0,0,1600,832);
 		
@@ -166,6 +172,11 @@ class GamePanel extends JPanel implements KeyListener{
 			g.fillRect((int)explodeRects[2].getX(),(int)explodeRects[2].getY(),(int)explodeRects[2].getWidth(),(int)explodeRects[2].getHeight());
 			g.fillRect((int)explodeRects[3].getX(),(int)explodeRects[3].getY(),(int)explodeRects[3].getWidth(),(int)explodeRects[3].getHeight());
 		}
+		
+		g.setColor(finalProject.SOFT_BLOCK_COLOUR);
+		g.setFont(new Font("Calibri",Font.PLAIN,25));
+		String livesMessage = "Lives Remaining: " + lives;
+		g.drawString(livesMessage,10,30);
 	}
 
 	public void start(){
@@ -175,7 +186,11 @@ class GamePanel extends JPanel implements KeyListener{
 			moveMonster(m,m.getPath());
 		}
 
-		hitMonster();
+		playerHitMonster();
+		
+		if(pHitTimer!=0){
+			pHitTimer-=1;
+			}
 
 		if(dropBomb){
 			int bombX = (bx-3)/45;
@@ -553,18 +568,25 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 	}
 	
-	public Boolean hitMonster(){
+	public Boolean playerHitMonster(){
 		Rectangle pRect = p.getActualRect(mx);
 		
 		for(Monster m: monsters){
 			Rectangle mRect = m.getActualRect();
 			
-			if(pRect.intersects(mRect)){
+			if(pHitTimer==0 && pRect.intersects(mRect)){
+				System.out.println("player hit monster");
+				pHitTimer = 60;
+				lives-=1;
 				return true;
 			}
 		}
 		return false;
 	}
+	
+	public Boolean bombHitMonster(Monster m){
+		return false;
+		}
 	
 	public void newGrid(Block grid[][]){ //resets the 2D grid of the map with the borders and hardblocks
 		for(int row=0; row<13; row++){ //clear the grid to be just nulls
