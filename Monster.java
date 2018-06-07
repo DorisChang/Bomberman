@@ -9,7 +9,7 @@ import java.util.*;
 
 public class Monster {
 	int x, y, mx, speed, hits, points, currentDirection; 
-	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
+	public static final int RIGHT = 1, LEFT = -1, UP = -2, DOWN = 2;
 	String type;
 	ArrayList<Integer> path;
 	private Rectangle borderRect; //a 45 x 45 square that is used for keeping the monster in the middle of aisles 

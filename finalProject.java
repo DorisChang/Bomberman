@@ -59,7 +59,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 	private boolean dropBomb; //if bomb is on screen
 	
-	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
+	public static final int RIGHT = 1, LEFT = -1, UP = -2, DOWN = 2;
 	
 	private Block grid[][] = new Block [13][27];
 	private ArrayList<Monster> monsters = new ArrayList<Monster>();
@@ -451,11 +451,18 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	public int validRandomDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
 		ArrayList<Integer> v = new ArrayList<Integer>(); //contains all valid directions
-		for(int d = 1; d<5; d++){
+		for(int d = -2; d<0; d++){
 			if(hitBlock(m,d)==false){
 				v.add(d);
 			}
 		}
+		
+		for(int d = 1; d<3; d++){
+			if(hitBlock(m,d)==false){
+				v.add(d);
+			}
+		}
+		
 		if(v.size()==0){
 			return 5;
 			}
@@ -560,6 +567,13 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
 		if(m.getType().equals("ballom")){
+			int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
+			int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
+			
+			if(gX%2==1 && gY%2==1){
+				
+				}
+			
 			if(hitBlock(m,m.getCurrentDirection())){
 				m.setCurrentDirection(validRandomDirection(m));
 			}
