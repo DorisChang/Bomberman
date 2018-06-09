@@ -466,7 +466,7 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 		
 		if(v.size()==0){
-			return 5;
+			return 0;
 			}
 		else{
 			Random rand = new Random();
@@ -601,6 +601,10 @@ class GamePanel extends JPanel implements KeyListener{
 			else if(hitBlock(m,m.getCurrentDirection())){
 				m.setCurrentDirection(validRandomDirection(m));
 			}
+			
+			else if(m.getCurrentDirection()==0 && validRandomDirection(m)!=0){
+				m.setCurrentDirection(validRandomDirection(m));
+				}
 
 			m.moveStraight(1.50);
 		}
