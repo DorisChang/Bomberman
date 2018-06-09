@@ -437,18 +437,21 @@ class GamePanel extends JPanel implements KeyListener{
 		int randX = rand.nextInt(22)+3; //randomly generated X 
 		int randY = rand.nextInt(8)+3; //randomly generated Y
 		ArrayList<Integer> path = new ArrayList<Integer>();
-		path.add(0);
-			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
-				randY+=(randY%2==0?1:0); //adjusts to an available position
-			}
-			if(grid[randY][randX]==null){ //if this is an available position
-				Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
-				monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
-				m.setCurrentDirection(validRandomDirection(m));
-			}
-			else{
-				addMonster(type);	
-			}
+		path.add(0); //0 means that there is no direction to move in, ie. completely blocked by walls
+		if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
+			randY+=(randY%2==0?1:0); //adjusts to an available position in the aisles 
+		}
+		if(randX == 2 && randY == 1 ||  randX == 1 && randY == 1 || randX==1 && randY ==2){
+                addMonster(type);
+            }
+		if(grid[randY][randX]==null){ //if this is an available position
+			Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
+			monsters.add(m); 
+			m.setCurrentDirection(validRandomDirection(m));
+		}
+		else{
+			addMonster(type);	
+		}
 	}
 	
 	public int validRandomDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
@@ -606,7 +609,11 @@ class GamePanel extends JPanel implements KeyListener{
 				m.setCurrentDirection(validRandomDirection(m));
 				}
 
-			m.moveStraight(1.50);
+			m.moveStraight(m.getSpeed());
+		}
+		
+		else if(m.getType().equals("  ")){
+			
 		}
 	}
 	

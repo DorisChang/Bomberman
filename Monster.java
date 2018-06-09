@@ -2,14 +2,14 @@
 //monster objects for all the enemies in the game
 
 //https://strategywiki.org/wiki/Super_Bomberman/Enemies
-//http://bomberman.wikia.com/wiki/Ballom
+//http://bomberman.wikia.com/wiki/Bomberman_(NES)
 
 import java.awt.Rectangle;
 import java.util.*;
 
 public class Monster {
-	double x, y; 
-	int mx, speed, hits, points, currentDirection; 
+	double x, y, speed; 
+	int mx, hits, points, currentDirection; 
 	public static final int RIGHT = 1, LEFT = -1, UP = -2, DOWN = 2;
 	String type;
 	ArrayList<Integer> path;
@@ -19,11 +19,11 @@ public class Monster {
     public Monster(String info, ArrayList<Integer> p, Integer mx) { //info <type, speed, hits, points, x, y>
     	String [] infoList = info.split(",");
     	type = infoList[0];
-    	speed = Integer.parseInt(infoList[1]);
+    	speed = Double.parseDouble(infoList[1]);
     	hits = Integer.parseInt(infoList[2]);
     	points = Integer.parseInt(infoList[3]);
-    	x = (double)(Integer.parseInt(infoList[4]));
-    	y = (double)(Integer.parseInt(infoList[5]));
+    	x = Double.parseDouble(infoList[4]);
+    	y = Double.parseDouble(infoList[5]);
     	currentDirection = p.get(0);
     	path = p;
     	actualRect = new Rectangle((int)(x) , (int)(y) , 31, 31);
@@ -49,7 +49,7 @@ public class Monster {
     	return y;
     	}
     
-    public int getSpeed(){
+    public double getSpeed(){
     	return speed;
     	}
     	
