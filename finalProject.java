@@ -151,12 +151,12 @@ class GamePanel extends JPanel implements KeyListener{
 		//DRAWING MONSTERS aka enemies
 		for(Monster m : monsters){
 			g.setColor(new Color(250,0,0));
-			g.fillRect(m.getX()+mx,m.getY(),31,31);
+			g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 			//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
 			g.setColor(new Color(0,0,0));
-			g.drawRect(m.getX()+mx,m.getY(),31,31);
+			g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 			Rectangle bRect = m.getRect();
-			g.drawRect((int)(bRect.getX())+mx,(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+			g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
 		}
 
 		if(dropBomb == true && detonateTime != 0){
@@ -602,7 +602,7 @@ class GamePanel extends JPanel implements KeyListener{
 				m.setCurrentDirection(validRandomDirection(m));
 			}
 
-			m.moveStraight(3);
+			m.moveStraight(1.50);
 		}
 	}
 	
