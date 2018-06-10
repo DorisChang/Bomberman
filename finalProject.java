@@ -53,9 +53,7 @@ public class finalProject extends JFrame implements ActionListener{
 class GamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private Player p;
-	private Image tBkg;
 	private int mx,sx,bx,by,detonateTime,explosionTime;
-	private int pHitTimer = 0; 
 	private int lives = 3;
 	private Rectangle[]explodeRects = new Rectangle[4];
 
@@ -74,24 +72,6 @@ class GamePanel extends JPanel implements KeyListener{
 		setFocusable(true);
 		addKeyListener(this);
 		requestFocus();
-		newGrid(grid);
-		addSoftBlocks(50);
-
-		p = new Player();
-		
-		mx = 0;
-
-		tBkg = new ImageIcon("temp_bkg.png").getImage();
-
-		detonateTime = 70;
-		explosionTime = 45;
-
-		dropBomb = false;
-
-		explodeRects[0] = new Rectangle(0,0,0,39);
-		explodeRects[1] = new Rectangle(0,0,0,39);
-		explodeRects[2] = new Rectangle(0,0,39,0);
-		explodeRects[3] = new Rectangle(0,0,39,0);
 
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 			
@@ -106,9 +86,37 @@ class GamePanel extends JPanel implements KeyListener{
 		catch(IOException ex){
 			System.out.println("monsters.txt not found"); //couldn't find the txt file
 		}
+
+		startLevel(1); //start at level 1
+	}
+
+	public void startLevel(int level){
+		p = new Player();
+
+		newGrid(grid);
+		addSoftBlocks(50);
+		
+		mx = 0;
+
+		detonateTime = 70;
+		explosionTime = 45;
+
+		dropBomb = false;
+
+		explodeRects[0] = new Rectangle(0,0,0,39);
+		explodeRects[1] = new Rectangle(0,0,0,39);
+		explodeRects[2] = new Rectangle(0,0,39,0);
+		explodeRects[3] = new Rectangle(0,0,39,0);
+
+		monsters.clear();
+		
 		for(int i =0 ; i<10; i++){
 			addMonster(0);
-			}
+		}
+	}
+
+	public void gameOver(){
+
 	}
 
 	@Override
@@ -181,18 +189,32 @@ class GamePanel extends JPanel implements KeyListener{
 		g.drawString(livesMessage,10,30);
 	}
 
+	public void bombPlayer(Rectangle r){
+		Rectangle pRect = p.getActualRect(mx);
+
+		if(pRect.intersects(r)){
+			lives-=1;
+
+			startLevel(1);
+		}
+	}
+
 	public void start(){
 		moveMan();
 
+		if(playerHitMonster()){
+			/*if(lives == -1){
+				gameOver();
+			}
+
+			else{*/
+				startLevel(1);
+			//}
+		}
+		
 		for(Monster m:monsters){
 			moveMonster(m,m.getPath());
 		}
-
-		playerHitMonster();
-		
-		if(pHitTimer!=0){
-			pHitTimer-=1;
-			}
 
 		if(dropBomb){
 			int bombX = (bx-3)/45;
@@ -200,6 +222,8 @@ class GamePanel extends JPanel implements KeyListener{
 
 			if(grid[bombY][bombX-1] == null || grid[bombY][bombX-1].getType() == 2){
 				explodeRects[0].setBounds(bx+explosionTime+mx-45,by+60,45-explosionTime,39);
+
+				bombPlayer(explodeRects[0]);
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY][bombX-1] = null;
@@ -209,6 +233,8 @@ class GamePanel extends JPanel implements KeyListener{
 			if(grid[bombY][bombX+1] == null || grid[bombY][bombX+1].getType() == 2){
 				explodeRects[1].setBounds(bx+39+mx,by+60,45-explosionTime,39);
 
+				bombPlayer(explodeRects[1]);
+
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY][bombX+1] = null;
 				}
@@ -217,6 +243,8 @@ class GamePanel extends JPanel implements KeyListener{
 			if(grid[bombY-1][bombX] == null || grid[bombY-1][bombX].getType() == 2){
 				explodeRects[2].setBounds(bx+mx,by+explosionTime+20,39,45-explosionTime);
 
+				bombPlayer(explodeRects[2]);
+
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY-1][bombX] = null;
 				}
@@ -224,6 +252,8 @@ class GamePanel extends JPanel implements KeyListener{
 
 			if(grid[bombY+1][bombX] == null || grid[bombY+1][bombX].getType() == 2){
 				explodeRects[3].setBounds(bx+mx,by+99,39,45-explosionTime);
+
+				bombPlayer(explodeRects[3]);
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY+1][bombX] = null;
@@ -437,21 +467,18 @@ class GamePanel extends JPanel implements KeyListener{
 		int randX = rand.nextInt(22)+3; //randomly generated X 
 		int randY = rand.nextInt(8)+3; //randomly generated Y
 		ArrayList<Integer> path = new ArrayList<Integer>();
-		path.add(0); //0 means that there is no direction to move in, ie. completely blocked by walls
-		if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
-			randY+=(randY%2==0?1:0); //adjusts to an available position in the aisles 
-		}
-		if(randX == 2 && randY == 1 ||  randX == 1 && randY == 1 || randX==1 && randY ==2){
-                addMonster(type);
-            }
-		if(grid[randY][randX]==null){ //if this is an available position
-			Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
-			monsters.add(m); 
-			m.setCurrentDirection(validRandomDirection(m));
-		}
-		else{
-			addMonster(type);	
-		}
+		path.add(0);
+			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
+				randY+=(randY%2==0?1:0); //adjusts to an available position
+			}
+			if(grid[randY][randX]==null){ //if this is an available position
+				Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
+				monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
+				m.setCurrentDirection(validRandomDirection(m));
+			}
+			else{
+				addMonster(type);	
+			}
 	}
 	
 	public int validRandomDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
@@ -609,11 +636,7 @@ class GamePanel extends JPanel implements KeyListener{
 				m.setCurrentDirection(validRandomDirection(m));
 				}
 
-			m.moveStraight(m.getSpeed());
-		}
-		
-		else if(m.getType().equals("  ")){
-			
+			m.moveStraight(1.50);
 		}
 	}
 	
@@ -623,9 +646,8 @@ class GamePanel extends JPanel implements KeyListener{
 		for(Monster m: monsters){
 			Rectangle mRect = m.getActualRect();
 			
-			if(pHitTimer==0 && pRect.intersects(mRect)){
+			if(pRect.intersects(mRect)){
 				System.out.println("player hit monster");
-				pHitTimer = 50;
 				lives-=1;
 				return true;
 			}
@@ -635,7 +657,7 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	public Boolean bombHitMonster(Monster m){
 		return false;
-		}
+	}
 	
 	public void newGrid(Block grid[][]){ //resets the 2D grid of the map with the borders and hardblocks
 		for(int row=0; row<13; row++){ //clear the grid to be just nulls
