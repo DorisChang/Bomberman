@@ -53,7 +53,9 @@ public class finalProject extends JFrame implements ActionListener{
 class GamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private Player p;
+	private Image tBkg;
 	private int mx,sx,bx,by,detonateTime,explosionTime;
+	private int pHitTimer = 0; 
 	private int lives = 3;
 	private Rectangle[]explodeRects = new Rectangle[4];
 
@@ -72,31 +74,14 @@ class GamePanel extends JPanel implements KeyListener{
 		setFocusable(true);
 		addKeyListener(this);
 		requestFocus();
-
-		keys = new boolean[KeyEvent.KEY_LAST+1];
-			
-		
-		try{ //reading the monster file 
-			Scanner inFile = new Scanner(new BufferedReader(new FileReader("monsters.txt")));
-			while(inFile.hasNextLine()){
-				String nextLine = inFile.nextLine();
-				allMonsters.add(nextLine);
-			}	
-		}
-		catch(IOException ex){
-			System.out.println("monsters.txt not found"); //couldn't find the txt file
-		}
-
-		startLevel(1); //start at level 1
-	}
-
-	public void startLevel(int level){
-		p = new Player();
-
 		newGrid(grid);
 		addSoftBlocks(50);
+
+		p = new Player();
 		
 		mx = 0;
+
+		tBkg = new ImageIcon("temp_bkg.png").getImage();
 
 		detonateTime = 70;
 		explosionTime = 45;
@@ -108,15 +93,29 @@ class GamePanel extends JPanel implements KeyListener{
 		explodeRects[2] = new Rectangle(0,0,39,0);
 		explodeRects[3] = new Rectangle(0,0,39,0);
 
-		monsters.clear();
+		keys = new boolean[KeyEvent.KEY_LAST+1];
+			
 		
-		for(int i =0 ; i<10; i++){
-			addMonster(0);
+		try{ //reading the monster file 
+			Scanner inFile = new Scanner(new BufferedReader(new FileReader("monsters.txt")));
+			while(inFile.hasNextLine()){
+				String nextLine = inFile.nextLine();
+				//System.out.println(nextLine);
+				allMonsters.add(nextLine);
+			}	
 		}
-	}
-
-	public void gameOver(){
-
+		catch(IOException ex){
+			System.out.println("monsters.txt not found"); //couldn't find the txt file
+		}
+		
+		//System.out.println(allMonsters);
+		//System.out.println(allMonsters.get(0));
+		//System.out.println(allMonsters.get(1));
+		//for(int i =0 ; i<10; i++){
+			//addMonster(3);
+			addMonster(4);
+			//addMonster(5);
+		//	}
 	}
 
 	@Override
@@ -189,32 +188,18 @@ class GamePanel extends JPanel implements KeyListener{
 		g.drawString(livesMessage,10,30);
 	}
 
-	public void bombPlayer(Rectangle r){
-		Rectangle pRect = p.getActualRect(mx);
-
-		if(pRect.intersects(r)){
-			lives-=1;
-
-			startLevel(1);
-		}
-	}
-
 	public void start(){
 		moveMan();
 
-		if(playerHitMonster()){
-			/*if(lives == -1){
-				gameOver();
-			}
-
-			else{*/
-				startLevel(1);
-			//}
-		}
-		
 		for(Monster m:monsters){
 			moveMonster(m,m.getPath());
 		}
+
+		playerHitMonster();
+		
+		if(pHitTimer!=0){
+			pHitTimer-=1;
+			}
 
 		if(dropBomb){
 			int bombX = (bx-3)/45;
@@ -222,8 +207,6 @@ class GamePanel extends JPanel implements KeyListener{
 
 			if(grid[bombY][bombX-1] == null || grid[bombY][bombX-1].getType() == 2){
 				explodeRects[0].setBounds(bx+explosionTime+mx-45,by+60,45-explosionTime,39);
-
-				bombPlayer(explodeRects[0]);
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY][bombX-1] = null;
@@ -233,8 +216,6 @@ class GamePanel extends JPanel implements KeyListener{
 			if(grid[bombY][bombX+1] == null || grid[bombY][bombX+1].getType() == 2){
 				explodeRects[1].setBounds(bx+39+mx,by+60,45-explosionTime,39);
 
-				bombPlayer(explodeRects[1]);
-
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY][bombX+1] = null;
 				}
@@ -243,8 +224,6 @@ class GamePanel extends JPanel implements KeyListener{
 			if(grid[bombY-1][bombX] == null || grid[bombY-1][bombX].getType() == 2){
 				explodeRects[2].setBounds(bx+mx,by+explosionTime+20,39,45-explosionTime);
 
-				bombPlayer(explodeRects[2]);
-
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY-1][bombX] = null;
 				}
@@ -252,8 +231,6 @@ class GamePanel extends JPanel implements KeyListener{
 
 			if(grid[bombY+1][bombX] == null || grid[bombY+1][bombX].getType() == 2){
 				explodeRects[3].setBounds(bx+mx,by+99,39,45-explosionTime);
-
-				bombPlayer(explodeRects[3]);
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[bombY+1][bombX] = null;
@@ -467,30 +444,35 @@ class GamePanel extends JPanel implements KeyListener{
 		int randX = rand.nextInt(22)+3; //randomly generated X 
 		int randY = rand.nextInt(8)+3; //randomly generated Y
 		ArrayList<Integer> path = new ArrayList<Integer>();
-		path.add(0);
-			if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
-				randY+=(randY%2==0?1:0); //adjusts to an available position
-			}
-			if(grid[randY][randX]==null){ //if this is an available position
-				Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
-				monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
-				m.setCurrentDirection(validRandomDirection(m));
-			}
-			else{
-				addMonster(type);	
-			}
+		path.add(0); //0 means that there is no direction to move in, ie. completely blocked by walls
+		if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
+			randY+=(randY%2==0?1:0); //adjusts to an available position in the aisles 
+		}
+		if(randX == 2 && randY == 1 ||  randX == 1 && randY == 1 || randX==1 && randY ==2){
+            addMonster(type);
+            }
+		if(grid[randY][randX]==null){ //if this is an available position
+			Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
+			monsters.add(m); 
+			int d = validRandomDirection(m);
+			m.setCurrentDirection(d);
+			m.addDirection(d);
+		}
+		else{
+			addMonster(type);	
+		}
 	}
 	
 	public int validRandomDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
 		ArrayList<Integer> v = new ArrayList<Integer>(); //contains all valid directions
 		for(int d = -2; d<0; d++){
-			if(hitBlock(m,d)==false){
+			if(!hitBlock(m,d)){
 				v.add(d);
 			}
 		}
 		
 		for(int d = 1; d<3; d++){
-			if(hitBlock(m,d)==false){
+			if(!hitBlock(m,d)){
 				v.add(d);
 			}
 		}
@@ -605,18 +587,18 @@ class GamePanel extends JPanel implements KeyListener{
 			
 			if(gX%2==1 && gY%2==1){
 				if(m.getCurrentDirection()==1 || m.getCurrentDirection()==-1){ //if monster is going left/right
-					if(hitBlock(m,UP)==false){
+					if(!hitBlock(m,UP)){
 						v.add(UP);
 						}
-					if(hitBlock(m,DOWN)==false){
+					if(!hitBlock(m,DOWN)){
 						v.add(DOWN);
 						}
 					}
 				else if(m.getCurrentDirection()==2 || m.getCurrentDirection()==-2){ //if monster is going up/down
-					if(hitBlock(m,LEFT)==false){
+					if(!hitBlock(m,LEFT)){
 						v.add(LEFT);
 						}
-					if(hitBlock(m,RIGHT)==false){
+					if(!hitBlock(m,RIGHT)){
 						v.add(RIGHT);
 						}
 					}
@@ -636,9 +618,72 @@ class GamePanel extends JPanel implements KeyListener{
 				m.setCurrentDirection(validRandomDirection(m));
 				}
 
-			m.moveStraight(1.50);
+			m.moveStraight(m.getSpeed());
 		}
+		
+		else if(m.getType().equals("doria")){
+			
+			//path = m.getPath();
+			System.out.println(path.size());
+			
+			if(path.size()>0){
+				//System.out.printf("X: %d Y: %d ",(m.getX()-7)%45,(m.getY()-72)%45);
+				//System.out.println(path.get(0));
+				int nextInstruction = path.get(0); //gets the next direction the monster should head to
+				if(nextInstruction==RIGHT){
+					m.setCurrentDirection(RIGHT);
+				}
+				else if(nextInstruction==LEFT){
+					m.setCurrentDirection(LEFT);
+				}
+				else if(nextInstruction==UP){
+					m.setCurrentDirection(UP);
+				}
+				else if(nextInstruction==DOWN){
+					m.setCurrentDirection(DOWN);
+				}
+				
+				m.moveStraight(m.getSpeed()); //move in the specified direction
+				
+				if((int)((m.getY()-72)%45)==0 && (int)((m.getX()-7))%45==0){ //if a direction was followed, remove it 
+					//System.out.println("hello");
+					m.pathRemoveFirst();
+				}
+			}
+			if(m.getPath().size()==0){
+				System.out.println("nothing in path");
+				m.setPath(fastestPath(m));
+				}
+		}
+		
 	}
+	
+	public ArrayList<Integer> fastestPath(Monster m){
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		ArrayList<Point> openList = new ArrayList<Point>();
+		ArrayList<Point> closedList = new ArrayList<Point>();
+		
+		path.add(UP);
+		path.add(DOWN);
+		path.add(LEFT);
+		path.add(RIGHT);
+		
+		int mX = (int)(Math.round(m.getX()+15.5)/45); //closest column to the monster
+		int mY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row to the monster
+		int pX = (int)(Math.round(p.getX()-mx+15.5)/45); //closest column to the player
+		int pY = (int)(Math.round(p.getY()+15.5-65)/45); //closest row to the player
+		
+		openList.add(new Point(mX,mY));
+		
+		/*while(openList.size()>0){
+			
+			}*/
+		
+		int h = Math.abs(mY-pY)+Math.abs(mX-pX); //heuristic - estimated movement cost from the current square to the player's square 
+		//System.out.println(h);
+		
+		return path;
+		}
 	
 	public Boolean playerHitMonster(){
 		Rectangle pRect = p.getActualRect(mx);
@@ -646,8 +691,9 @@ class GamePanel extends JPanel implements KeyListener{
 		for(Monster m: monsters){
 			Rectangle mRect = m.getActualRect();
 			
-			if(pRect.intersects(mRect)){
+			if(pHitTimer==0 && pRect.intersects(mRect)){
 				System.out.println("player hit monster");
+				pHitTimer = 50;
 				lives-=1;
 				return true;
 			}
@@ -657,7 +703,7 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	public Boolean bombHitMonster(Monster m){
 		return false;
-	}
+		}
 	
 	public void newGrid(Block grid[][]){ //resets the 2D grid of the map with the borders and hardblocks
 		for(int row=0; row<13; row++){ //clear the grid to be just nulls
