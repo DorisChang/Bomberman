@@ -13,6 +13,8 @@ import javax.swing.Timer;
 import java.io.*;
 import java.util.Scanner;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class finalProject extends JFrame implements ActionListener{
 	static final Color SOFT_BLOCK_COLOUR = new Color(120,190,120);
@@ -60,11 +62,15 @@ class GamePanel extends JPanel implements KeyListener{
 
 	private boolean dropBomb; //if bomb is on screen
 	
+	private Node[][] nodesAll;
+	private Node[][] nodesPassSoftBlocks; //used for enemies that can pass through softwalls
+	
 	public static final int RIGHT = 1, LEFT = -1, UP = -2, DOWN = 2;
 	
 	private Block grid[][] = new Block [13][27];
 	private ArrayList<Monster> monsters = new ArrayList<Monster>();
 	private ArrayList<String> allMonsters = new ArrayList<String>();
+	private ArrayList<String> allLevels = new ArrayList<String>();
 	
 	//private Font font = new Font("Comic Sans",Font.PLAIN,50);
 	
@@ -92,6 +98,17 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 
 		//read file that has # of monsters per level
+		
+		try{ //reading the monster file 
+			Scanner inFile = new Scanner(new BufferedReader(new FileReader("levels.txt")));
+			while(inFile.hasNextLine()){
+				String nextLine = inFile.nextLine();
+				allLevels.add(nextLine);
+			}	
+		}
+		catch(IOException ex){
+			System.out.println("levels.txt not found"); //couldn't find the txt file
+		}
 
 		startLevel(1); //start at level 1
 	}
@@ -116,9 +133,19 @@ class GamePanel extends JPanel implements KeyListener{
 
 		monsters.clear();
 		
-		for(int i =0 ; i<10; i++){ //run through which level it is monsters @ level - 1
-			addMonster(0);
-		}
+		
+		String [] infoList = allLevels.get(level-1).split(",");
+		for(int n = 0; n<7; n++){
+			for(int i = 0; i<Integer.parseInt(infoList[n]); i++){
+				//addMonster(n);
+				System.out.println(n);
+				}
+			}
+    	
+    	//System.out.println(allLevels.get(0));
+			
+		
+		addMonster(4);
 	}
 
 	public void gameOver(){
@@ -149,13 +176,67 @@ class GamePanel extends JPanel implements KeyListener{
 		
 		//DRAWING MONSTERS aka enemies
 		for(Monster m : monsters){
-			g.setColor(new Color(250,0,0));
-			g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-			//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-			g.setColor(new Color(0,0,0));
-			g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-			Rectangle bRect = m.getRect();
-			g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+			//System.out.println(m.getType());
+			if(m.getType().equals("ballom")){
+				g.setColor(new Color(244, 152, 66)); //ORANGE
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			else if(m.getType().equals("onil")){
+				g.setColor(new Color(130, 225, 242)); //BLUE
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			else if(m.getType().equals("dahl")){
+				g.setColor(new Color(241, 131, 129)); //RED/PINK
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			else if(m.getType().equals("minvo")){
+				g.setColor(new Color(240, 239, 129)); //YELLOW
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			else if(m.getType().equals("doria")){
+				g.setColor(new Color(202, 128, 237)); //PURPLE
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				//g.setColor(new Color(0,0,0));
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			else if(m.getType().equals("ovape")){
+				g.setColor(new Color(109, 67, 67)); //BROWN
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				g.setColor(new Color(0,0,0));
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			else if(m.getType().equals("pontan")){
+				g.setColor(new Color(37, 7, 155)); //NAVY
+				g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
+				g.setColor(new Color(0,0,0));
+				g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
+				Rectangle bRect = m.getRect();
+				g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+				}
+			
 		}
 
 		if(dropBomb == true && detonateTime != 0){
@@ -214,6 +295,7 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 
 		if(dropBomb){
+			
 			if(grid[by][bx-1] == null || grid[by][bx-1].getType() == 2){
 				explodeRects[0].setBounds(45*bx+explosionTime+mx-42,45*by+69,45-explosionTime,39);
 
@@ -221,6 +303,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[by][bx-1] = null;
+					nodesAll[bx-1][by] = new Node(bx-1, by, true);
 				}
 			}
 
@@ -231,6 +314,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[by][bx+1] = null;
+					nodesAll[bx+1][by] = new Node(bx+1, by, true);
 				}
 			}
 
@@ -241,6 +325,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[by-1][bx] = null;
+					nodesAll[bx][by-1] = new Node(bx, by-1, true);
 				}
 			}
 
@@ -251,6 +336,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 				if(explosionTime > 0 && detonateTime == 0){
 					grid[by+1][bx] = null;
+					nodesAll[bx][by+1] = new Node(bx, by+1, true);
 				}
 			}
 		}
@@ -612,18 +698,18 @@ class GamePanel extends JPanel implements KeyListener{
 			
 			if(gX%2==1 && gY%2==1){
 				if(m.getCurrentDirection()==1 || m.getCurrentDirection()==-1){ //if monster is going left/right
-					if(hitBlock(m,UP)==false){
+					if(!hitBlock(m,UP)){
 						v.add(UP);
 						}
-					if(hitBlock(m,DOWN)==false){
+					if(!hitBlock(m,DOWN)){
 						v.add(DOWN);
 						}
 					}
 				else if(m.getCurrentDirection()==2 || m.getCurrentDirection()==-2){ //if monster is going up/down
-					if(hitBlock(m,LEFT)==false){
+					if(!hitBlock(m,LEFT)){
 						v.add(LEFT);
 						}
-					if(hitBlock(m,RIGHT)==false){
+					if(!hitBlock(m,RIGHT)){
 						v.add(RIGHT);
 						}
 					}
@@ -643,9 +729,116 @@ class GamePanel extends JPanel implements KeyListener{
 				m.setCurrentDirection(validRandomDirection(m));
 				}
 
-			m.moveStraight(1.50);
+			m.moveStraight(m.getSpeed());
 		}
+		
+		else if(m.getType().equals("doria")){
+			if(((int)(m.getX())-7)%45<2 && ((int)(m.getY())-7-65)%45<2){
+				m.setPath(getArray(m,findPath(nodesPassSoftBlocks,(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45),(int)(Math.round(p.getX()-mx+15.5)/45),(int)(Math.round(p.getY()+15.5-65)/45))));
+			}
+			//path = m.getPath();
+			//System.out.println(path.size());
+			
+			if(m.getPath().size()>0){
+				
+				//System.out.println(path.get(0));
+				int nextInstruction = m.getPath().get(0); //gets the next direction the monster should head to
+				if(nextInstruction==RIGHT){
+					m.setCurrentDirection(RIGHT);
+				}
+				else if(nextInstruction==LEFT){
+					m.setCurrentDirection(LEFT);
+				}
+				else if(nextInstruction==UP){
+					m.setCurrentDirection(UP);
+				}
+				else if(nextInstruction==DOWN){
+					m.setCurrentDirection(DOWN);
+				}
+				
+				m.moveStraight(m.getSpeed()); //move in the specified direction
+				
+				//System.out.printf("Monster X: %d  Monster Y: %d\n",(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45));
+				if((int)((m.getY()-72)%45)==0 && (int)((m.getX()-7))%45==0){ //if a direction was followed, remove it 
+					//System.out.println("hello");
+					m.pathRemoveFirst();
+				}
+			}
+			//System.out.printf("Monster X: %d  Monster Y: %d\n",(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45));
+			
+			if(m.getPath().size()==0){
+				//System.out.println("nothing in path");
+				//m.setPath(getArray(m,findPath((int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45),(int)(Math.round(p.getX()-mx+15.5)/45),(int)(Math.round(p.getY()+15.5-65)/45))));
+				//if(m.getPath().size()==0){
+					int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
+					int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
+					ArrayList<Integer> v = new ArrayList<Integer>(); 
+					
+					if(gX%2==1 && gY%2==1){
+						if(m.getCurrentDirection()==1 || m.getCurrentDirection()==-1){ //if monster is going left/right
+							if(!hitBlock(m,UP)){
+								v.add(UP);
+								}
+							if(!hitBlock(m,DOWN)){
+								v.add(DOWN);
+								}
+							}
+						else if(m.getCurrentDirection()==2 || m.getCurrentDirection()==-2){ //if monster is going up/down
+							if(!hitBlock(m,LEFT)){
+								v.add(LEFT);
+								}
+							if(!hitBlock(m,RIGHT)){
+								v.add(RIGHT);
+								}
+							}
+						}
+						
+					if(v.size()>0){
+						Random rand = new Random();
+						int randIndex = rand.nextInt(v.size());
+						m.setCurrentDirection(v.get(randIndex));
+					}
+						
+					else if(hitBlock(m,m.getCurrentDirection())){
+						m.setCurrentDirection(validRandomDirection(m));
+					}
+					
+					else if(m.getCurrentDirection()==0 && validRandomDirection(m)!=0){
+						m.setCurrentDirection(validRandomDirection(m));
+						}
+		
+					m.moveStraight(m.getSpeed());
+				}
+				
+		}
+		
 	}
+	/*public ArrayList<Integer> fastestPath(Monster m){
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		ArrayList<Point> openList = new ArrayList<Point>();
+		ArrayList<Point> closedList = new ArrayList<Point>();
+		
+		path.add(UP);
+		path.add(DOWN);
+		path.add(LEFT);
+		path.add(RIGHT);
+		
+		int mX = (int)(Math.round(m.getX()+15.5)/45); //closest column to the monster
+		int mY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row to the monster
+		int pX = (int)(Math.round(p.getX()-mx+15.5)/45); //closest column to the player
+		int pY = (int)(Math.round(p.getY()+15.5-65)/45); //closest row to the player
+		
+		openList.add(new Point(mX,mY));
+		
+		while(openList.size()>0){
+			
+			}
+		
+		int h = Math.abs(mY-pY)+Math.abs(mX-pX); //heuristic - estimated movement cost from the current square to the player's square 
+		//System.out.println(h);
+		
+		return path;
+		}*/
 	
 	public Boolean playerHitMonster(){
 		Rectangle pRect = p.getActualRect(mx);
@@ -661,6 +854,251 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 		return false;
 	}
+	
+	public Boolean bombHitMonster(Monster m){
+		return false;
+		}
+		
+	public Node getNode(Node[][] nodes, int x, int y)
+	{
+		if (x >= 0 && x < 27 && y >= 0 && y < 13)
+		{
+			return nodes[x][y];
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	public ArrayList<Integer> getArray(Monster m,List<Node> linkedList){
+		List<Node> t = new ArrayList<Node>();
+   		t.addAll(linkedList);
+   		ArrayList<Integer> al = new ArrayList<Integer>();
+   		
+   		//System.out.printf("Monster X: %d  Monster Y: %d\n",(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45));
+   		if(t.size()>0){
+   			if(t.get(0).getX()<(int)(Math.round(m.getX()+15.5)/45)){
+				al.add(LEFT);
+			}
+			if(t.get(0).getX()>(int)(Math.round(m.getX()+15.5)/45)){
+				al.add(RIGHT);
+			}
+			if(t.get(0).getY()>(int)(Math.round(m.getY()+15.5-65)/45)){
+				al.add(DOWN);
+			}
+			if(t.get(0).getY()<(int)(Math.round(m.getY()+15.5-65)/45)){
+				al.add(UP);
+			}
+   		}
+   		
+   		for(int i =0; i<t.size()-1; i++){
+   			if(t.get(i+1).getX()<t.get(i).getX()){
+   				al.add(LEFT);
+   				}
+   			if(t.get(i+1).getX()>t.get(i).getX()){
+   				al.add(RIGHT);
+   				}
+   			if(t.get(i+1).getY()>t.get(i).getY()){
+   				al.add(DOWN);
+   				}
+   			if(t.get(i+1).getY()<t.get(i).getY()){
+   				al.add(UP);
+   				}
+   			}
+  		System.out.println(al.size());
+   		return al;
+		}
+	
+	public final List<Node> findPath(Node[][] nodes, int startX, int startY, int goalX, int goalY)
+	{
+		// If our start position is the same as our goal position ...
+		if (startX == goalX && startY == goalY)
+		{
+			// Return an empty path, because we don't need to move at all.
+			return new LinkedList<Node>();
+		}
+
+		// The set of nodes already visited.
+		List<Node> openList = new LinkedList<Node>();
+		// The set of currently discovered nodes still to be visited.
+		List<Node> closedList = new LinkedList<Node>();
+
+		// Add starting node to open list.
+		openList.add(nodes[startX][startY]);
+		//System.out.printf("monster X: %d monster Y: %d\n",startX,startY);
+		//System.out.printf("player X: %d player Y: %d\n",startX,startY);
+
+		// This loop will be broken as soon as the current node position is
+		// equal to the goal position.
+		while (true)
+		{
+			// Gets node with the lowest F score from open list.
+			//System.out.println("openList size: "+openList.size());
+			Node current = lowestFInList(openList);
+			
+			// Remove current node from open list.
+			openList.remove(current);
+			// Add current node to closed list.
+			closedList.add(current);
+
+			// If the current node position is equal to the goal position ...
+			//System.out.println(nodes[1][3]);
+			//System.out.println(current.getX());
+			//System.out.println(current.getY());
+		
+			if ((current.getX() == goalX) && (current.getY() == goalY))
+			{
+				// Return a LinkedList containing all of the visited nodes.
+				return calcPath(nodes[startX][startY], current);
+			}
+
+			List<Node> adjacentNodes = getAdjacent(nodes, current, closedList);
+			for (Node adjacent : adjacentNodes)
+			{
+				// If node is not in the open list ...
+				if (!openList.contains(adjacent))
+				{
+					// Set current node as parent for this node.
+					adjacent.setParent(current);
+					// Set H costs of this node (estimated costs to goal).
+					adjacent.setH(nodes[goalX][goalY]);
+					// Set G costs of this node (costs from start to this node).
+					adjacent.setG(current);
+					// Add node to openList.
+					openList.add(adjacent);
+				}
+				// Else if the node is in the open list and the G score from
+				// current node is cheaper than previous costs ...
+				else if (adjacent.getG() > adjacent.calculateG(current))
+				{
+					// Set current node as parent for this node.
+					adjacent.setParent(current);
+					// Set G costs of this node (costs from start to this node).
+					adjacent.setG(current);
+				}
+			}
+
+			// If no path exists ...
+			if (openList.isEmpty())
+			{
+				// Return an empty list.
+				return new LinkedList<Node>();
+			}
+			// But if it does, continue the loop.
+		}
+	}
+
+	/**
+	 * @param start
+	 *            The first node on the path.
+	 * @param goal
+	 *            The last node on the path.
+	 * @return a list containing all of the visited nodes, from the goal to the
+	 *         start.
+	 */
+	private List<Node> calcPath(Node start, Node goal)
+	{
+		LinkedList<Node> path = new LinkedList<Node>();
+
+		Node node = goal;
+		boolean done = false;
+		while (!done)
+		{
+			path.addFirst(node);
+			node = node.getParent();
+			if (node.equals(start))
+			{
+				done = true;
+			}
+		}
+		return path;
+	}
+
+	/**
+	 * @param list
+	 *            The list to be checked.
+	 * @return The node with the lowest F score in the list.
+	 */
+	private Node lowestFInList(List<Node> list)
+	{
+		//System.out.println(list.size());
+		Node cheapest = list.get(0);
+		
+		if(list.size()==1){
+			return cheapest;
+			}
+		for (int i = 0; i < list.size(); i++)
+		{
+			//System.out.println(i);
+			//System.out.println(list.get(i).getF());
+			//System.out.println(cheapest.getF());
+			if (list.get(i).getF() < cheapest.getF())
+			{
+				cheapest = list.get(i);
+			}
+		}
+		return cheapest;
+	}
+
+	/**
+	 * @param node
+	 *            The node to be checked for adjacent nodes.
+	 * @param closedList
+	 *            A list containing all of the nodes already visited.
+	 * @return A LinkedList with nodes adjacent to the given node if those
+	 *         exist, are walkable and are not already in the closed list.
+	 */
+	private List<Node> getAdjacent(Node[][] nodes, Node node, List<Node> closedList)
+	{
+		List<Node> adjacentNodes = new LinkedList<Node>();
+		int x = node.getX();
+		int y = node.getY();
+
+		Node adjacent;
+
+		// Check left node
+		if (x > 0)
+		{
+			adjacent = getNode(nodes, x - 1, y);
+			if (adjacent != null && adjacent.isWalkable() && !closedList.contains(adjacent))
+			{
+				adjacentNodes.add(adjacent);
+			}
+		}
+
+		// Check right node
+		if (x < 27)
+		{
+			adjacent = getNode(nodes, x + 1, y);
+			if (adjacent != null && adjacent.isWalkable() && !closedList.contains(adjacent))
+			{
+				adjacentNodes.add(adjacent);
+			}
+		}
+
+		// Check top node
+		if (y > 0)
+		{
+			adjacent = this.getNode(nodes, x, y - 1);
+			if (adjacent != null && adjacent.isWalkable() && !closedList.contains(adjacent))
+			{
+				adjacentNodes.add(adjacent);
+			}
+		}
+
+		// Check bottom node
+		if (y < 13)
+		{
+			adjacent = this.getNode(nodes, x, y + 1);
+			if (adjacent != null && adjacent.isWalkable() && !closedList.contains(adjacent))
+			{
+				adjacentNodes.add(adjacent);
+			}
+		}
+		return adjacentNodes;
+	}
+
 	
 	public ArrayList<Integer> bombHitMonster(){
 		ArrayList<Integer>hits = new ArrayList<Integer>();
@@ -693,24 +1131,41 @@ class GamePanel extends JPanel implements KeyListener{
 		return hits;
 	}
 	
+	//------------------------------------------------------------------------------------------------------------
+	
 	public void newGrid(Block grid[][]){ //resets the 2D grid of the map with the borders and hardblocks
+		nodesAll = new Node[27][13];
+		nodesPassSoftBlocks = new Node[27][13];
 		for(int row=0; row<13; row++){ //clear the grid to be just nulls
 			Arrays.fill(grid[row],null);
 		}
+		
+		for(int x = 0; x<27; x++){
+			for(int y = 0; y<13; y++){
+				nodesAll[x][y] = new Node(x, y, true);
+				nodesPassSoftBlocks[x][y] = new Node(x, y, true);
+				}
+			}
 
 		for(int x = 0; x<=26; x++){ //add the top and bottom borders
 			for(int y = 0; y<13; y+=12){
 				grid[y][x]= new Block(x,y,1); //hard block
+				nodesAll[x][y] = new Node(x, y, false);
+				nodesPassSoftBlocks[x][y] = new Node(x, y, false);
 			}
 		}
 		for(int x = 0; x<27; x+=26){ //add the left and right borders
 			for(int y = 0; y<13; y+=1){
 				grid[y][x]=new Block(x,y,1); //hard block
+				nodesAll[x][y] = new Node(x, y, false);
+				nodesPassSoftBlocks[x][y] = new Node(x, y, false);
 			}
 		} 
 		for(int x = 2; x<25; x+=2){ //add the hardblocks in the middle
 			for(int y = 2; y<11; y+=2){
 				grid[y][x]= new Block(x,y,1); //hard block
+				nodesAll[x][y] = new Node(x, y, false);
+				nodesPassSoftBlocks[x][y] = new Node(x, y, false);
 			}
 		}
 	}
@@ -730,6 +1185,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 			else{
 				grid[randY][randX]= new Block(randX,randY,2); //soft block
+				nodesAll[randX][randY] = new Node(randX, randY, false);
 			}
 		}
 	}
