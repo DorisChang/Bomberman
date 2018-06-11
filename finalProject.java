@@ -138,14 +138,24 @@ class GamePanel extends JPanel implements KeyListener{
 		for(int n = 0; n<7; n++){
 			for(int i = 0; i<Integer.parseInt(infoList[n]); i++){
 				//addMonster(n);
-				System.out.println(n);
 				}
 			}
     	
     	//System.out.println(allLevels.get(0));
 			
 		
-		addMonster(4);
+		addMonster(1);
+		addMonster(1);
+		addMonster(1);
+		addMonster(1);
+		addMonster(1);
+		addMonster(1);
+		//addMonster(5);
+		//addMonster(5);
+		//addMonster(5);
+		//System.out.println(allMonsters);
+		//addMonster(4);
+		//addMonster(4);
 	}
 
 	public void gameOver(){
@@ -265,12 +275,12 @@ class GamePanel extends JPanel implements KeyListener{
 		Rectangle pRect = p.getActualRect(mx);
 		Rectangle rect = new Rectangle((int)r.getX()-mx,(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());
 
-		System.out.println("PLAYER >>>> X: "+pRect.getX() + "Y: "+pRect.getY());
-		System.out.println("BOMB >>>>>> X: "+rect.getX() + "Y: "+rect.getY());
+		//System.out.println("PLAYER >>>> X: "+pRect.getX() + "Y: "+pRect.getY());
+		//System.out.println("BOMB >>>>>> X: "+rect.getX() + "Y: "+rect.getY());
 
 
 		if(pRect.intersects(rect)){
-			System.out.println("BOO");
+			//System.out.println("BOO");
 			lives-=1;
 
 			startLevel(1);
@@ -341,13 +351,7 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 
-		if(bombHitMonster().size() > 0){
-
-			System.out.println("HI");
-			for(int i : bombHitMonster()){
-				monsters.remove(i);
-			}
-		}
+		bombHitMonster();
 
 		tick();
 	}
@@ -481,11 +485,12 @@ class GamePanel extends JPanel implements KeyListener{
 
 		return false;
 	}
+	
 
 	public void moveMan(){
 		if(keys[KeyEvent.VK_RIGHT]){
 
-			System.out.println(hitBlock(RIGHT));
+			//System.out.println(hitBlock(RIGHT));
 
 			if(hitBlock(RIGHT)){
 				p.moveRight(0);
@@ -546,7 +551,7 @@ class GamePanel extends JPanel implements KeyListener{
 				bx = (int)(Math.round(p.getX()+15.5-mx)/45); //closest column blocks
 				by = (int)(Math.round(p.getY()+15.5-60)/45); //closest row
 
-				System.out.println("BX: "+bx+ "    BY: "+by);
+				//System.out.println("BX: "+bx+ "    BY: "+by);
 
 				grid[by][bx] = new Block(bx,by,3); //bomb is 3
 			}
@@ -591,6 +596,7 @@ class GamePanel extends JPanel implements KeyListener{
 		if(v.size()==0){
 			return 0;
 			}
+			
 		else{
 			Random rand = new Random();
 			int randIndex = rand.nextInt(v.size());
@@ -628,7 +634,7 @@ class GamePanel extends JPanel implements KeyListener{
 		else if(direction == LEFT){
 			Rectangle bRect = m.getLeftRect();
 			
-			if(gX>0 && grid[gY][gX-1] != null){
+			if(gX>0 && grid[gY][gX-1] != null ){
 				Rectangle r = (grid[gY][gX-1]).getRect();
 				//Rectangle rL = p.getRect(LEFT);
 
@@ -649,8 +655,8 @@ class GamePanel extends JPanel implements KeyListener{
 
 		else if(direction == UP){
 			Rectangle bRect = m.getUpRect();
-			
-			if(gY>0 && grid[gY-1][gX] != null){
+			System.out.println(m.getType().equals("ovape"));
+			if( gY>0 && grid[gY-1][gX] != null ){
 				Rectangle r = (grid[gY-1][gX]).getRect();
 				if(bRect.intersects(r)){
 					return true;
@@ -670,7 +676,7 @@ class GamePanel extends JPanel implements KeyListener{
 		else if(direction == DOWN){
 			Rectangle bRect = m.getDownRect();
 			
-			if(gY<12 && grid[gY+1][gX] != null){
+			if(gY<12 && grid[gY+1][gX] != null ){
 				Rectangle r = (grid[gY+1][gX]).getRect();
 
 				if(bRect.intersects(r)){
@@ -690,9 +696,8 @@ class GamePanel extends JPanel implements KeyListener{
 		return false;
 	}
 	
-	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
-		if(m.getType().equals("ballom")){
-			int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
+	public void randomMovement(Monster m){
+		int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
 			int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
 			ArrayList<Integer> v = new ArrayList<Integer>(); 
 			
@@ -732,15 +737,12 @@ class GamePanel extends JPanel implements KeyListener{
 			m.moveStraight(m.getSpeed());
 		}
 		
-		else if(m.getType().equals("doria")){
-			if(((int)(m.getX())-7)%45<2 && ((int)(m.getY())-7-65)%45<2){
-				m.setPath(getArray(m,findPath(nodesPassSoftBlocks,(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45),(int)(Math.round(p.getX()-mx+15.5)/45),(int)(Math.round(p.getY()+15.5-65)/45))));
+	public void targetMovement(Monster m, Node[][] nodes){
+		if(((int)(m.getX())-7)%45<2 && ((int)(m.getY())-7-65)%45<2){
+				m.setPath(getArray(m,findPath(nodes,(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45),(int)(Math.round(p.getX()-mx+15.5)/45),(int)(Math.round(p.getY()+15.5-65)/45))));
 			}
-			//path = m.getPath();
-			//System.out.println(path.size());
 			
 			if(m.getPath().size()>0){
-				
 				//System.out.println(path.get(0));
 				int nextInstruction = m.getPath().get(0); //gets the next direction the monster should head to
 				if(nextInstruction==RIGHT){
@@ -809,36 +811,35 @@ class GamePanel extends JPanel implements KeyListener{
 		
 					m.moveStraight(m.getSpeed());
 				}
-				
+		}
+	
+	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
+		if(m.getType().equals("ballom")){
+			randomMovement(m);
 		}
 		
-	}
-	/*public ArrayList<Integer> fastestPath(Monster m){
-		ArrayList<Integer> path = new ArrayList<Integer>();
-		ArrayList<Point> openList = new ArrayList<Point>();
-		ArrayList<Point> closedList = new ArrayList<Point>();
-		
-		path.add(UP);
-		path.add(DOWN);
-		path.add(LEFT);
-		path.add(RIGHT);
-		
-		int mX = (int)(Math.round(m.getX()+15.5)/45); //closest column to the monster
-		int mY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row to the monster
-		int pX = (int)(Math.round(p.getX()-mx+15.5)/45); //closest column to the player
-		int pY = (int)(Math.round(p.getY()+15.5-65)/45); //closest row to the player
-		
-		openList.add(new Point(mX,mY));
-		
-		while(openList.size()>0){
-			
+		else if(m.getType().equals("onil") || m.getType().equals("minvo")){
+			int estimateDist = (int)(Math.abs((m.getX()+15.5)/45-(p.getX()-mx+15.5)/45)) + (int)(Math.abs((m.getY()+15.5-65)/45-(p.getY()+15.5-65)/45));
+			ArrayList<Integer> v = new ArrayList<Integer>(); 
+			if(estimateDist>4){
+				randomMovement(m);
 			}
+			else{
+				targetMovement(m,nodesAll);
+			}
+		}
 		
-		int h = Math.abs(mY-pY)+Math.abs(mX-pX); //heuristic - estimated movement cost from the current square to the player's square 
-		//System.out.println(h);
+		else if(m.getType().equals("doria")){
+			targetMovement(m,nodesPassSoftBlocks);
+		}
 		
-		return path;
-		}*/
+		else if(m.getType().equals("ovape")){
+			randomMovement(m);
+		}
+		
+		
+	}
+	
 	
 	public Boolean playerHitMonster(){
 		Rectangle pRect = p.getActualRect(mx);
@@ -847,8 +848,8 @@ class GamePanel extends JPanel implements KeyListener{
 			Rectangle mRect = m.getActualRect();
 			
 			if(pRect.intersects(mRect)){
-				System.out.println("player hit monster");
-				lives-=1;
+				//System.out.println("player hit monster");
+			
 				return true;
 			}
 		}
@@ -906,7 +907,7 @@ class GamePanel extends JPanel implements KeyListener{
    				al.add(UP);
    				}
    			}
-  		System.out.println(al.size());
+  		//System.out.println(al.size());
    		return al;
 		}
 	
@@ -1100,35 +1101,24 @@ class GamePanel extends JPanel implements KeyListener{
 	}
 
 	
-	public ArrayList<Integer> bombHitMonster(){
-		ArrayList<Integer>hits = new ArrayList<Integer>();
+	public void bombHitMonster(){
+		ArrayList<Monster>hits = new ArrayList<Monster>();
 
 		for(int i = 0; i < monsters.size(); i ++){
 			for(Rectangle r : explodeRects){
 				Rectangle rect = new Rectangle((int)r.getX()-mx,(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());
 
 				if(rect.intersects(monsters.get(i).getActualRect())){
-					hits.add(i);
+					hits.add(monsters.get(i));
 				}
 			}
-			/*if(explodeRects[0].intersects(monsters.get(i).getActualRect())){
-				hits.add(i);
-			}
-
-			else if(explodeRects[1].intersects(monsters.get(i).getActualRect())){
-				hits.add(i);
-			}
-
-			else if(explodeRects[2].intersects(monsters.get(i).getActualRect())){
-				hits.add(i);
-			}
-
-			else if(explodeRects[3].intersects(monsters.get(i).getActualRect())){
-				hits.add(i);
-			}*/
 		}
 
-		return hits;
+		if(hits.size()>0){
+			for(Monster m: hits){
+				monsters.remove(m);
+				}
+			}
 	}
 	
 	//------------------------------------------------------------------------------------------------------------
