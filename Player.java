@@ -5,6 +5,9 @@ import java.awt.Rectangle;
 
 public class Player{
 	private int cx,cy; //player's coords
+	private int direction = 1;
+	private int spriteCounter;
+	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	//Rectangle uRect, dRect, lRect, rRect;
 	private Rectangle borderRect;
 	private Rectangle actualRect;
@@ -57,6 +60,22 @@ public class Player{
 		return null;
 	}*/
 
+	public int getDirection(){
+		return direction;
+		}
+		
+	public void setDirection(int d){
+		direction = d;
+		}
+		
+	public int getSpriteCounter(){
+		return spriteCounter;
+		}
+		
+	public void addToSpriteCounter(){
+		spriteCounter++;
+		}
+
 	public Rectangle getRect(int mx){
 		borderRect = new Rectangle(cx - 3 - mx, cy - 3, 37, 37);
 		return borderRect;
@@ -81,7 +100,8 @@ public class Player{
 
 	public void moveUp(int y){
 		cy -= y;
-
+		direction = UP;
+		spriteCounter ++;
 		borderRect.setLocation(cx-3,cy-3);
 
 		/*uRect.setLocation(cx,cy-6);
@@ -92,7 +112,8 @@ public class Player{
 
 	public void moveDown(int y){
 		cy += y;
-
+		direction = DOWN;
+		spriteCounter ++;
 		borderRect.setLocation(cx-3,cy-3);
 
 		/*uRect.setLocation(cx,cy-6);
@@ -103,7 +124,8 @@ public class Player{
 
 	public void moveRight(int x){
 		cx += x;
-
+		direction = RIGHT;
+		spriteCounter ++;
 		borderRect.setLocation(cx-3,cy-3);
 
 		/*uRect.setLocation(cx,cy-6);
@@ -114,7 +136,8 @@ public class Player{
 
 	public void moveLeft(int x){
 		cx -= x;
-
+		direction = LEFT;
+		spriteCounter ++;
 		borderRect.setLocation(cx-3,cy-3);
 
 		/*uRect.setLocation(cx,cy-6);

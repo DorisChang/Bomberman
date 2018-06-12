@@ -9,8 +9,8 @@ import java.util.*;
 
 public class Monster {
 	double x, y, speed; 
-	int mx, hits, points, currentDirection; 
-	public static final int RIGHT = 1, LEFT = -1, UP = -2, DOWN = 2;
+	int mx, hits, points, currentDirection, spriteCounter; 
+	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	String type;
 	ArrayList<Integer> path;
 	private Rectangle borderRect; //a 45 x 45 square that is used for keeping the monster in the middle of aisles 
@@ -48,6 +48,18 @@ public class Monster {
     	
     public double getY(){
     	return y;
+    	}
+    	
+    public int getSpriteCounter(){
+		return spriteCounter;
+		}
+		
+	public void addToSpriteCounter(){
+		spriteCounter++;
+		}
+   
+    public int getPoints(){
+    	return points;
     	}
     
     public double getSpeed(){
@@ -96,15 +108,19 @@ public class Monster {
  		//System.out.println(currentDirection);
     	if(currentDirection==LEFT){
     		moveLeft(n);
+    		spriteCounter++;
     		}
     	if(currentDirection==RIGHT){
     		moveRight(n);
+    		spriteCounter++;
     		}
     	if(currentDirection==UP){
     		moveUp(n);
+    		spriteCounter++;
     		}
     	if(currentDirection==DOWN){
     		moveDown(n);
+    		spriteCounter++;
     		}
     	}
     
