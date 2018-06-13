@@ -108,19 +108,19 @@ public class Monster {
  		//System.out.println(currentDirection);
     	if(currentDirection==LEFT){
     		moveLeft(n);
-            spriteCounter++;
+            //spriteCounter++;
     	}
     	if(currentDirection==RIGHT){
     		moveRight(n);
-            spriteCounter++;
+            //spriteCounter++;
     	}
     	if(currentDirection==UP){
     		moveUp(n);
-            spriteCounter++;
+            //spriteCounter++;
     	}
     	if(currentDirection==DOWN){
     		moveDown(n);
-            spriteCounter++;
+            //spriteCounter++;
     	}
     }
     

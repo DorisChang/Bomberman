@@ -5,7 +5,7 @@ public class Node{
 	 * How much it costs to move orthogonally from one node to another.
 	 */
 	protected static final int MOVEMENT_COST = 10;
-
+	private int cost;
 	/**
 	 * The node's X position on the map.
 	 */
@@ -47,7 +47,7 @@ public class Node{
 	 * @param walkable
 	 *            If the node is not a wall and can be walked through.
 	 */
-	public Node(int x, int y, boolean walkable)
+	public Node(int x, int y, boolean walkable, int cost)
 	{
 		this.x = x;
 		this.y = y;
@@ -62,7 +62,7 @@ public class Node{
 	 */
 	public void setG(Node parent)
 	{
-		g = (parent.getG() + MOVEMENT_COST);
+		g = (parent.getG() + cost);
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class Node{
 	 */
 	public int calculateG(Node parent)
 	{
-		return (parent.getG() + MOVEMENT_COST);
+		return (parent.getG() + cost);
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class Node{
 	 */
 	public void setH(Node goal)
 	{
-		h = (Math.abs(getX() - goal.getX()) + Math.abs(getY() - goal.getY())) * MOVEMENT_COST;
+		h = (Math.abs(getX() - goal.getX()) + Math.abs(getY() - goal.getY())) * cost;
 	}
 
 	/**
