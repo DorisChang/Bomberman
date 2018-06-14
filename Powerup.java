@@ -12,24 +12,22 @@ Flamepass - immunity to flames
 Mystery - temporary invincibility
 */
 
-public class Powerups{
-	private String name;
-	private int lvl;
+import java.awt.Rectangle;
 
-	public Powerups(String powerUp){
-		name = powerUp;
-		lvl = 1;
+public class Powerup{
+	private Rectangle r;
+	private int type;
+
+	public Powerup(int x,int y,int t){
+		r = new Rectangle(x+3,y+3,37,37);
+		type = t;
 	}
 
-	public String getName(){
-		return name;
+	public Rectangle getRect(){
+		return r;
 	}
 
-	public int getLevel(){
-		return lvl;
-	}
-
-	public void incLevel(){
-		lvl += 1;
+	public int getType(){
+		return type;
 	}
 }

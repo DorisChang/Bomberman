@@ -44,7 +44,7 @@ public class finalProject extends JFrame implements ActionListener{
 		super("Bomberman");
 		
 		setSize(720,690);
-		myTimer = new Timer(25,this);
+		myTimer = new Timer(40,this);
 		game = new GamePanel();
 		add(game);
 		
@@ -180,6 +180,7 @@ class GamePanel extends JPanel implements KeyListener{
 	private int monstersKilled = 0;
 	private int displayPoints = 0;
 	private LinkedList<Bomb> bombs = new LinkedList<Bomb>();
+	private ArrayList<Bomb> emptyBombs = new ArrayList<Bomb>();
 	private Rectangle gate;
 
 	private boolean dropBomb; //if bomb is on screen
@@ -196,6 +197,8 @@ class GamePanel extends JPanel implements KeyListener{
 	
 	private Node[][] nodesAll;
 	private Node[][] nodesPassSoftBlocks; //used for enemies that can pass through softwalls
+
+	private ArrayList<Powerup> powerUps = new ArrayList<Powerup>();
 	
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	
@@ -227,7 +230,8 @@ class GamePanel extends JPanel implements KeyListener{
 		addKeyListener(this);
 		requestFocus();
 
-		detonator = false;
+		detonator = true;
+		dropMax = 1;
 
 		back = new ImageIcon("back.png").getImage(); //background of the game when playing
 		sBlock = new ImageIcon("soft_block.png").getImage();
@@ -316,6 +320,8 @@ class GamePanel extends JPanel implements KeyListener{
 		
 		p = new Player();
 		//stageTheme.loop();
+
+		powerUps.clear();
 		
 		newLevelScreen = 180;
 		stageStartMusic = false;
@@ -326,12 +332,10 @@ class GamePanel extends JPanel implements KeyListener{
 		
 		mx = 0;
 
-		dropBomb = false;
+		dropBomb = true;
 
 		//points = 0;
 		//displayPoints = 0;
-
-		dropMax = 3;
 		bombsLeft = dropMax;
 
 		bombs.clear();
@@ -344,10 +348,6 @@ class GamePanel extends JPanel implements KeyListener{
 				//System.out.println(n);
 			}
 		}
-	}
-
-	public void gameOver(){
-
 	}
 
 	@Override
@@ -377,16 +377,59 @@ class GamePanel extends JPanel implements KeyListener{
 			else if(screenFreeze<0){
 				g.drawImage(back,mx,0,this);
 	
-				//g.setColor(new Color(0,0,255));
+				g.setColor(new Color(0,0,255));
 				
-				//Rectangle cRect = p.getRect(0);
-				//g.drawRect((int)(cRect.getX()),(int)(cRect.getY()),(int)(cRect.getWidth()),(int)(cRect.getHeight()));
+				Rectangle cRect = p.getRect(0);
+				g.drawRect((int)(cRect.getX()),(int)(cRect.getY()),(int)(cRect.getWidth()),(int)(cRect.getHeight()));
 				
-				System.out.printf("rect X: "+(int)(gate.getX()/45)+" rect Y: "+(int)(gate.getY()/45)+"\n");
+				//System.out.printf("rect X: "+(int)(gate.getX()/45)+" rect Y: "+(int)(gate.getY()/45)+"\n");
 				//g.fillRect((int)(gate.getX()+mx),(int)(gate.getY()),(int)(gate.getWidth()),(int)(gate.getHeight()));
 				g.drawImage(gateImage,(int)(gate.getX()+mx),(int)(gate.getY()),this);
+
+				for(int j = 0; j < powerUps.size(); j ++){
+					Rectangle r = powerUps.get(j).getRect();
+					g.drawRect((int)r.getX()+mx,(int)r.getY(),37,37);
+				}
 		
 				//g.setColor(new Color(0,0,255));
+
+				if(dropBomb){
+					for(Bomb b : bombs){
+						if(b!= null){
+							if(b.getDT() != 0){
+								//System.out.println("Bomb!");
+								g.setColor(new Color(0,0,0));
+								g.fillRect(b.getBX()*45+mx,b.getBY()*45+65,45,45);
+							}
+
+							if(b.getET() >= 0 && b.getDT() == 0){
+								int r = b.getRange();
+								//System.out.println("Explode!");
+								g.setColor(new Color(255,100,0));
+								//g.fillRect((int)b.getBombRect().getX()*45+3+mx,(int)b.getBombRect().getY()*45+67,(int)b.getBombRect().getWidth(),(int)b.getBombRect().getHeight());
+
+								for(int i = 1; i < r+1; i++){
+									if(b.isOccupied(0,i-1) == false){
+										g.fillRect(b.getBX()*45-45*i+mx,b.getBY()*45+65+10,45,25);
+									}
+
+									if(b.isOccupied(1,i-1) == false){
+										g.fillRect(b.getBX()*45+45*i+mx,b.getBY()*45+65+10,45,25);
+									}
+
+									if(b.isOccupied(2,i-1) == false){
+										g.fillRect(b.getBX()*45+mx+10,(int)b.getBY()*45+65-45*i,25,45);	
+									}
+									
+									if(b.isOccupied(3,i-1) == false){
+										g.fillRect(b.getBX()*45+mx+10,(int)b.getBY()*45+65+45*i,25,45);
+									}
+								}
+
+							}
+						}
+					}
+				}
 		
 				g.drawImage(bombermanSprites[p.getDirection()-1][p.getSpriteCounter()%3],p.getX()-7,p.getY()-7,this);
 		
@@ -473,7 +516,7 @@ class GamePanel extends JPanel implements KeyListener{
 		
 				//System.out.println(dropBomb);
 		
-				if(dropBomb){
+				/*if(dropBomb){
 					for(Bomb b : bombs){
 						if(b!= null){
 							if(b.getDT() != 0){
@@ -494,7 +537,7 @@ class GamePanel extends JPanel implements KeyListener{
 							}
 						}
 					}
-				}
+				}*/
 				
 				for(int n = 0; n<lives-1; n++){
 					g.drawImage(heart,10+n*40,15,this);
@@ -569,7 +612,6 @@ class GamePanel extends JPanel implements KeyListener{
 			screenFreeze -=1;
 			
 			if(screenFreeze<=0 && newLevelScreen<0){
-				
 				moveMan();
 		
 				if(playerHitMonster()){
@@ -584,76 +626,176 @@ class GamePanel extends JPanel implements KeyListener{
 						gameOver = true;
 					}
 				}
+
+				for(Bomb b : bombs){
+					if(b.getET() >= 0 && b.getDT() == 0){
+						for(int i = 0; i < 4; i++){
+							if(b.getExpRect(i) != null){
+								bombPlayer(b.getExpRect(i));
+								bombHitMonster(b.getExpRect(i));
+							}
+						}
+					}
+				}
 				
 				for(Monster m:monsters){
 					moveMonster(m,m.getPath());
 				}
-		
-				ArrayList<Bomb> emptyBombs = new ArrayList<Bomb>();
+
+				ArrayList<Powerup> pGrabbed = new ArrayList<Powerup>();
+
+				for(Powerup q : powerUps){
+					System.out.printf("rect X: "+(int)(q.getRect().getX()/45)+" rect Y: "+(int)(q.getRect().getY()/45)+"\n");
+					if(p.getActualRect(mx).intersects(q.getRect())){
+						if(q.getType() == 0){
+							dropMax += 1;
+							pGrabbed.add(q);
+						}
+					}
+				}
+
+				for(Powerup q : pGrabbed){
+					if(q != null){
+						powerUps.remove(q);
+					}
+				}
+
+				//System.out.println("DROP MAX: "+dropMax);
 		
 				if(dropBomb){
 					for(Bomb b : bombs){
 						if(b != null){
 							int bx = b.getBX();
 							int by = b.getBY();
-		
-							b.detonate();
-		
-							//System.out.println("MERPPP");
-		
-							//checks if hits player
-							for(int i = 0; i < 4; i++){
-								//System.out.println("YOOOO");
-								bombPlayer(b.getExpRect(i));
+
+							if(detonator == false){
+								b.detonate();
+								b.noActiveBombs();
 							}
-		
-							bombHitMonster(); //checks if hits monster
-		
-							if(b.getET() > 0 && b.getDT() == 0){
-								if(grid[by][bx-1] == null || grid[by][bx-1].getType() == 2){
-									b.explode(0);
-		
-									grid[by][bx-1] = null;
-									nodesAll[bx-1][by] = new Node(bx-1, by, true, 10);
-								}
-		
-								if(grid[by][bx+1] == null || grid[by][bx+1].getType() == 2){
-									b.explode(1);
-									grid[by][bx+1] = null;
-									nodesAll[bx+1][by] = new Node(bx+1, by, true,10);
-								}
-		
-								if(grid[by-1][bx] == null || grid[by-1][bx].getType() == 2){
-									b.explode(2);
-									grid[by-1][bx] = null;
-									nodesAll[bx][by-1] = new Node(bx, by-1, true,10);
-								}
-		
-								if(grid[by+1][bx] == null || grid[by+1][bx].getType() == 2){
-									b.explode(3);
-									grid[by+1][bx] = null;
-									nodesAll[bx][by+1] = new Node(bx, by+1, true,10);
-								}
+
+							if(detonator && b.getDT() == 0 && b.getET() >= 0){
+								b.detonate();
+								b.noActiveBombs();
 							}
-		
+
+							int r = b.getRange();
+
+							if(b.getET() >= 0 && b.getDT() == 0){
+								for(int i = 1; i < r+1 ; i++){
+									if(bx - i >= 0){
+										if(grid[by][bx-i] != null){
+											b.blockPresent(0,i-1);
+
+											if(grid[by][bx-i].getType() == 2){
+												if(i > 1 && b.isOccupied(0,i-2) == false){
+													grid[by][bx-i] = null;
+													nodesAll[bx-i][by] = new Node(bx-i, by, true,10);
+												}
+
+												else if(i == 1){
+													grid[by][bx-i] = null;
+													nodesAll[bx-i][by] = new Node(bx-i, by, true,10);
+												}
+											}
+
+											else if(grid[by][bx-i].getType() == 3){
+												findBomb(bx-i,by).explosionTriggered();
+											}
+										}
+									}
+
+									if(bx + i <= 26){
+										if(grid[by][bx+i] != null){
+											b.blockPresent(1,i-1);
+
+											if(grid[by][bx+i].getType() == 2){
+												if(i > 1 && b.isOccupied(1,i-2) == false){
+													grid[by][bx+i] = null;
+													nodesAll[bx+i][by] = new Node(bx+i, by, true,10);
+												}
+
+												else if(i == 1){
+													grid[by][bx+i] = null;
+													nodesAll[bx+i][by] = new Node(bx+i, by, true,10);
+												}
+											}
+
+											else if(grid[by][bx+i].getType() == 3){
+												findBomb(bx+i,by).explosionTriggered();
+											}
+										}
+									}
+
+									if(by - i >= 0){
+										if(grid[by-i][bx] != null){
+											b.blockPresent(2,i-1);
+
+											if(grid[by-i][bx].getType() == 2){
+												if(i > 1 && b.isOccupied(2,i-2) == false){
+													grid[by-i][bx] = null;
+													nodesAll[bx][by-i] = new Node(bx, by-i, true,10);
+												}
+
+												else if(i == 1){
+													grid[by-i][bx] = null;
+													nodesAll[bx][by-i] = new Node(bx, by-i, true,10);
+												}
+											}
+
+											else if(grid[by-i][bx].getType() == 3){
+												findBomb(bx,by-i).explosionTriggered();
+											}
+										}
+									}
+
+									if(by + i <= 12){
+										if(grid[by+i][bx] != null){
+											b.blockPresent(3,i-1);
+
+											if(grid[by+i][bx].getType() == 2){
+												if(i > 1 && b.isOccupied(3,i-2) == false){
+													grid[by+i][bx] = null;
+													nodesAll[bx][by+i] = new Node(bx, by+i, true,10);
+												}
+
+												else if(i == 1){
+													grid[by+i][bx] = null;
+													nodesAll[bx][by+i] = new Node(bx, by+i, true,10);
+												}
+											}
+
+											else if(grid[by+i][bx].getType() == 3){
+												findBomb(bx,by+i).explosionTriggered();
+											}
+										}
+									}
+								}
+
+								b.explode();
+							}
+
 							if(b.getStatus()){
 								emptyBombs.add(b);
 							}
 						}
 					}
-		
+
+
+
 					for(Bomb b : emptyBombs){
 						if(b != null){
 							int bx = b.getBX();
 							int by = b.getBY();
-		
+
 							grid[by][bx] = null;
-		
-							bombs.remove();
-		
+
+							bombs.remove(b);
+
 							bombsLeft += 1;
 						}
 					}
+
+					emptyBombs.clear();
 				}
 		
 				if(foundDoor()==true && level<7){
@@ -684,14 +826,24 @@ class GamePanel extends JPanel implements KeyListener{
 		
 	}
 
+	public Bomb findBomb(int x, int y){
+		for(Bomb b : bombs){
+			if(b.getBX() == x && b.getBY() == y){
+				return b;
+			}
+		}
+
+		return null;
+	}
+
 	public void bombPlayer(Rectangle r){
-		System.out.println("HALLLO");
+		//System.out.println("HALLLO");
 
 		Rectangle pRect = p.getActualRect(mx);
 		Rectangle rect = new Rectangle((int)r.getX(),(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());
 
 		if(pRect.intersects(rect)){
-			System.out.println("BOO");
+			//System.out.println("BOO");
 			lives-=1;
 			//bombs.clear();
 
@@ -877,6 +1029,7 @@ class GamePanel extends JPanel implements KeyListener{
 			int by = (int)(Math.round(p.getY()+15.5-60)/45); //closest row
 
 			if(grid[by][bx] == null){
+				System.out.println("BOMBS LEFT: "+bombsLeft);
 				if(bombsLeft > 0){ //POWERUP EXCEPTION: if(dropBomb == false && multibomb == false) >> for multibomb, cant put two bombs same spot
 					//if(b.added() == false){
 						Bomb b = new Bomb(bx,by);
@@ -891,25 +1044,23 @@ class GamePanel extends JPanel implements KeyListener{
 						}
 
 						bombsLeft -= 1;
-						//b.getAdded();
 					//}
 				}
 			}
 		}
 
-		/*else if(keys[KeyEvent.VK_X] == false){
-			added = false;
-		}
-
 		if(keys[KeyEvent.VK_Z]){
 			if(detonator){
-				if(bombsLeft > 0){
-					//System.out.println("HI");
-					dropBomb = true;
-					//detonate(bombs.getFirst());
+				System.out.println("DETONATE!");
+				if(bombsLeft < 3){
+					System.out.println("BOMBS!");
+					for(Bomb b:bombs){
+						System.out.println("EXPLODE");
+						b.explosionTriggered();
+					}
 				}
 			}
-		}*/
+		}
 	}
 	
 	//MONSTERS 
@@ -1450,27 +1601,25 @@ class GamePanel extends JPanel implements KeyListener{
 	}
 
 	
-	public void bombHitMonster(){
+	public void bombHitMonster(Rectangle r){
 		ArrayList<Monster>hits = new ArrayList<Monster>();
 
-		for(Bomb b : bombs){
-			for(int i = 0; i < monsters.size(); i ++){
-				for(int j = 0; j < 4; j++){
-					Rectangle monRect = monsters.get(i).getActualRect();
-					//Rectangle bombRect = grid[b.getY()][b.getX()];
+		//Rectangle rect = new Rectangle((int)r.getX(),(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());
 
-					//System.out.println("RECT >> X: "+monsters.get(i).getX()+"    Y: "+monsters.get(i).getY());
+		for(int i = 0; i < monsters.size(); i ++){
+			Rectangle monRect = monsters.get(i).getActualRect();
+			//Rectangle bombRect = grid[b.getY()][b.getX()];
 
-					if(monRect.intersects(b.getBombRect())){
-						//System.out.println("HI");
-						hits.add(monsters.get(i));
-					}
+			//System.out.println("RECT >> X: "+monsters.get(i).getX()+"    Y: "+monsters.get(i).getY());
 
-					else if(monRect.intersects(b.getExpRect(j))){
-						//System.out.println("BOO");
-						hits.add(monsters.get(i));
-					}
-				}
+			//if(monRect.intersects(r)){
+				//System.out.println("HI");
+			//	hits.add(monsters.get(i));
+			//}
+
+			if(monRect.intersects(r)){
+				//System.out.println("BOO");
+				hits.add(monsters.get(i));
 			}
 		}
 
@@ -1559,6 +1708,34 @@ class GamePanel extends JPanel implements KeyListener{
 		
 		int randGate = rand.nextInt(allSoftBlocks.size());
 		gate = allSoftBlocks.get(randGate);
+
+		for(int i = 0; i < 2; i++){
+			randPowerUp(randGate,allSoftBlocks);
+		}
+
 		//gate = allSoftBlocks.get(randGate);
 	}
+
+	public void randPowerUp(int g,ArrayList<Rectangle> s){
+		Random rand = new Random();
+		int randPU = rand.nextInt(s.size());
+		if(randPU == g){
+			randPowerUp(g,s);
+		}
+
+		else{
+			//randPower = rand.nextInt(7);
+			Rectangle rect = s.get(randPU);
+			powerUps.add(new Powerup((int)rect.getX(),(int)rect.getY(),0));
+		}
+	}
 }
+
+
+
+
+
+
+
+
+

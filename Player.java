@@ -20,7 +20,7 @@ public class Player{
 		cx = 52;
 		cy = 117;
 
-		borderRect = new Rectangle(cx - 3, cy - 3, 37, 37);
+		borderRect = new Rectangle(cx, cy - 3, 31, 37);
 		actualRect = new Rectangle(cx, cy, 31, 31);
 	}
 
@@ -54,7 +54,7 @@ public class Player{
 	}
 
 	public Rectangle getRect(int mx){
-		borderRect = new Rectangle(cx - 3 - mx, cy - 3, 37, 37);
+		borderRect = new Rectangle(cx - mx, cy - 3, 31, 37);
 		return borderRect;
 	}
 	
