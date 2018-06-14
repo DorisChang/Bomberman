@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import java.applet.Applet;
 import java.applet.AudioClip;
 
@@ -75,9 +78,11 @@ public class finalProject extends JFrame implements ActionListener{
 	public void start(){ //used to start the game
 		titleScreen.stop();
  		myTimer.start();
- 		//game.start();
+ 		game.start();
  		setVisible(true);
  		}
+ 		
+ 		
 
 }
 
@@ -163,17 +168,16 @@ class InstructMenu extends JFrame implements KeyListener{ //the instructions men
 		}
 	}
 
-
-
 class GamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private Player p;
 	private int mx,sx,sNum;
 	private Image back,sBlock;
 	private int lives = 3;
-	private int level = 1;
+	private int level = 7;
 	private int dropMax; //current level on
 	private int points = 0;
+	private int monstersKilled = 0;
 	private int displayPoints = 0;
 	private LinkedList<Bomb> bombs = new LinkedList<Bomb>();
 	private Rectangle gate;
@@ -187,6 +191,8 @@ class GamePanel extends JPanel implements KeyListener{
 	private boolean lifeLostMusic = false;
 	private boolean gameOver = false;
 	private boolean gameOverMusicOn = false;
+	private boolean wonGame = false;
+	private boolean wonGameMusicOn = false;
 	
 	private Node[][] nodesAll;
 	private Node[][] nodesPassSoftBlocks; //used for enemies that can pass through softwalls
@@ -200,6 +206,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 	//POWERUPS
 	private boolean detonator;// = true;
+	public Font joystixSmall, joystixMedium, joystixLarge;
 		
 	private Image heart = new ImageIcon("sprites/heart.png").getImage();
 	private Image[][] bombermanSprites = new Image[4][3];
@@ -227,6 +234,15 @@ class GamePanel extends JPanel implements KeyListener{
 
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 		
+		try{
+			joystixSmall = Font.createFont(Font.TRUETYPE_FONT,new File("joystix monospace.ttf")).deriveFont(Font.PLAIN,24);
+		}
+		catch(Exception ex){
+			System.out.println("didn't work");
+			ex.printStackTrace();
+		}
+		joystixMedium = joystixSmall.deriveFont(35F);
+		joystixLarge = joystixSmall.deriveFont(40F);
 
 
 		//titleScreen = Applet.newAudioClip(getClass().getResource("sounds/01_Title Screen.wav"));
@@ -341,14 +357,18 @@ class GamePanel extends JPanel implements KeyListener{
 		
 		//g.setColor(new Color(23,223,186));
 		
-		if(!gameOver){
+		if(!gameOver && !wonGame){
 			if(newLevelScreen>0 && screenFreeze<0){
 				g.setColor(new Color(0,0,0));
 				g.fillRect(0,0,720,690);
 				g.setColor(new Color(250,250,250));
-				g.setFont(new Font("Calibri",Font.PLAIN,50));
+				//g.setFont(new Font("Calibri",Font.PLAIN,50));
+				g.setFont(joystixMedium);
 				String levelMessage = "LEVEL " + level;
 				g.drawString(levelMessage,270,300);
+				
+				
+				
 				if(stageStartMusic == false){
 					playStageStartMusic();
 					stageStartMusic = true;
@@ -481,7 +501,8 @@ class GamePanel extends JPanel implements KeyListener{
 					} 
 						
 				g.setColor(new Color(0,0,0));
-				g.setFont(new Font("Calibri",Font.PLAIN,25));
+				//g.setFont(new Font("Calibri",Font.PLAIN,25));
+				g.setFont(joystixSmall);
 				String livesMessage = "Lives Remaining: " + lives;
 				//g.drawString(livesMessage,10,25);
 				if(displayPoints<points){
@@ -492,12 +513,33 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 		
-		else{
+		else if(gameOver){
 			g.setColor(new Color(0,0,0));
 			g.fillRect(0,0,720,690);
 			g.setColor(new Color(250,250,250));
-			g.setFont(new Font("Calibri",Font.PLAIN,50));
+			//g.setFont(new Font("Calibri",Font.PLAIN,50));
+			g.setFont(joystixLarge);
 			g.drawString("GAME OVER",230,300);
+			}
+		else if(wonGame){
+			g.setColor(new Color(0,0,0));
+			g.fillRect(0,0,720,690);
+			g.setColor(new Color(250,250,250));
+			//g.setFont(new Font("Calibri",Font.PLAIN,50));
+			//g.setFont(joystix);
+			g.setFont(joystixLarge);
+			g.setFont(joystixLarge);
+				g.drawString("YOU FINISHED!",140,100);
+				String pointsText = String.format("%1$-16s %2$16d","TOTAL POINTS:",points);
+				//String.format("%1$-10s %2$10s", left, right);
+				g.setFont(joystixSmall);
+				g.drawString(pointsText,20,300);
+				
+				String livesText = String.format("%1$-16s %2$16d","LIVES LEFT:",lives);
+				g.drawString(livesText,20,350);
+				
+				String monstersText = String.format("%1$-16s %2$16d","MONSTERS KILLED:",monstersKilled);
+				g.drawString(monstersText,20,400);
 			}
 	}
 
@@ -511,7 +553,7 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 	
 	public void start(){
-		if(!gameOver){
+		if(!gameOver && !wonGame){
 			
 			if(newLevelScreen<=0 && playTheme == false){
 				playThemeMusic();
@@ -620,6 +662,11 @@ class GamePanel extends JPanel implements KeyListener{
 					playTheme = false;
 					startLevel(level);
 				}
+				else if(foundDoor()==true && level ==7){
+					wonGame = true;
+					stageTheme.stop();
+					ending.play();
+					}
 		
 				if(bombsLeft == 3){
 					dropBomb = false;
@@ -627,9 +674,10 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 		
-		else{
+		else if (gameOver){
 			if(!gameOverMusicOn){
 				gameOverMusic.play();
+				//ending.play();
 				gameOverMusicOn = true;		
 			}	
 		}
@@ -1431,6 +1479,7 @@ class GamePanel extends JPanel implements KeyListener{
 			for(Monster m : hits){
 				points += m.getPoints();
 				monsters.remove(m);
+				monstersKilled++;
 			}
 		}
 
