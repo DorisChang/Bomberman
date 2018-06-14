@@ -174,7 +174,7 @@ class GamePanel extends JPanel implements KeyListener{
 	private int mx,sx,sNum;
 	private Image back,sBlock;
 	private int lives = 3;
-	private int level = 7;
+	private int level = 1;
 	private int dropMax; //current level on
 	private int points = 0;
 	private int monstersKilled = 0;
@@ -187,7 +187,7 @@ class GamePanel extends JPanel implements KeyListener{
 	private int bombsLeft;
 	private boolean playTheme = false; //used for checking if the music is already playing
 	private boolean stageStartMusic = false; //used for checking if the music is already playing
-	private int newLevelScreen = 100; //used to time how long the new level screen stays on screen for
+	private int newLevelScreen = 80; //used to time how long the new level screen stays on screen for
 	private int screenFreeze = 0; //used to time how long the keep screen frozen for
 	private boolean lifeLostMusic = false;
 	private boolean gameOver = false;
@@ -323,7 +323,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 		powerUps.clear();
 		
-		newLevelScreen = 180;
+		newLevelScreen = 80;
 		stageStartMusic = false;
 		lifeLostMusic = false;
 
@@ -365,9 +365,7 @@ class GamePanel extends JPanel implements KeyListener{
 				//g.setFont(new Font("Calibri",Font.PLAIN,50));
 				g.setFont(joystixMedium);
 				String levelMessage = "LEVEL " + level;
-				g.drawString(levelMessage,270,300);
-				
-				
+				g.drawString(levelMessage,260,300);
 				
 				if(stageStartMusic == false){
 					playStageStartMusic();
@@ -382,7 +380,7 @@ class GamePanel extends JPanel implements KeyListener{
 				Rectangle cRect = p.getRect(0);
 				g.drawRect((int)(cRect.getX()),(int)(cRect.getY()),(int)(cRect.getWidth()),(int)(cRect.getHeight()));
 				
-				//System.out.printf("rect X: "+(int)(gate.getX()/45)+" rect Y: "+(int)(gate.getY()/45)+"\n");
+				//System.out.printf("Gate rect X: "+(int)(gate.getX()/45)+" Gate rect Y: "+(int)(gate.getY()/45)+"\n");
 				//g.fillRect((int)(gate.getX()+mx),(int)(gate.getY()),(int)(gate.getWidth()),(int)(gate.getHeight()));
 				g.drawImage(gateImage,(int)(gate.getX()+mx),(int)(gate.getY()),this);
 
@@ -552,7 +550,7 @@ class GamePanel extends JPanel implements KeyListener{
 					displayPoints+=50;
 					}
 				String pointsMessage = "POINTS: " + displayPoints;
-				g.drawString(pointsMessage,230,30);
+				g.drawString(pointsMessage,230,40);
 			}
 		}
 		
@@ -562,7 +560,9 @@ class GamePanel extends JPanel implements KeyListener{
 			g.setColor(new Color(250,250,250));
 			//g.setFont(new Font("Calibri",Font.PLAIN,50));
 			g.setFont(joystixLarge);
-			g.drawString("GAME OVER",230,300);
+			g.drawString("GAME OVER",210,300);
+			g.setFont(joystixSmall);
+			g.drawString("PRESS [SPACE] TO RESTART",120,600);
 			}
 		else if(wonGame){
 			g.setColor(new Color(0,0,0));
@@ -572,17 +572,20 @@ class GamePanel extends JPanel implements KeyListener{
 			//g.setFont(joystix);
 			g.setFont(joystixLarge);
 			g.setFont(joystixLarge);
-				g.drawString("YOU FINISHED!",140,100);
-				String pointsText = String.format("%1$-16s %2$16d","TOTAL POINTS:",points);
-				//String.format("%1$-10s %2$10s", left, right);
-				g.setFont(joystixSmall);
-				g.drawString(pointsText,20,300);
-				
-				String livesText = String.format("%1$-16s %2$16d","LIVES LEFT:",lives);
-				g.drawString(livesText,20,350);
-				
-				String monstersText = String.format("%1$-16s %2$16d","MONSTERS KILLED:",monstersKilled);
-				g.drawString(monstersText,20,400);
+			g.drawString("YOU FINISHED!",140,100);
+			String pointsText = String.format("%1$-16s %2$16d","TOTAL POINTS:",points);
+			//String.format("%1$-10s %2$10s", left, right);
+			g.setFont(joystixSmall);
+			g.drawString(pointsText,20,300);
+			
+			String livesText = String.format("%1$-16s %2$16d","LIVES LEFT:",lives);
+			g.drawString(livesText,20,350);
+			
+			String monstersText = String.format("%1$-16s %2$16d","MONSTERS KILLED:",monstersKilled);
+			g.drawString(monstersText,20,400);
+			
+			g.setFont(joystixSmall);
+			g.drawString("PRESS [SPACE] TO RESTART",120,600);
 			}
 	}
 
@@ -645,7 +648,7 @@ class GamePanel extends JPanel implements KeyListener{
 				ArrayList<Powerup> pGrabbed = new ArrayList<Powerup>();
 
 				for(Powerup q : powerUps){
-					System.out.printf("rect X: "+(int)(q.getRect().getX()/45)+" rect Y: "+(int)(q.getRect().getY()/45)+"\n");
+					//System.out.printf("PowerUp rect X: "+(int)(q.getRect().getX()/45)+" PowerUp rect Y: "+(int)(q.getRect().getY()/45)+"\n");
 					if(p.getActualRect(mx).intersects(q.getRect())){
 						if(q.getType() == 0){
 							dropMax += 1;
@@ -807,6 +810,7 @@ class GamePanel extends JPanel implements KeyListener{
 				else if(foundDoor()==true && level ==7){
 					wonGame = true;
 					stageTheme.stop();
+					playTheme = false;
 					ending.play();
 					}
 		
@@ -823,6 +827,27 @@ class GamePanel extends JPanel implements KeyListener{
 				gameOverMusicOn = true;		
 			}	
 		}
+		
+		if(gameOver && keys[KeyEvent.VK_SPACE]){
+			level = 1;
+			lives = 3;
+			screenFreeze=0;
+			gameOver = false;
+			gameOverMusic.stop();
+			lifeLost.stop();
+			lifeLostMusic = false;
+			gameOverMusicOn = false;	
+			startLevel(level);
+			}
+			
+		if(wonGame && keys[KeyEvent.VK_SPACE]){
+			level = 1;
+			lives = 3;
+			screenFreeze=0;
+			wonGame = false;
+			ending.stop();	
+			startLevel(level);
+			}
 		
 	}
 
@@ -1080,7 +1105,42 @@ class GamePanel extends JPanel implements KeyListener{
 		//}
 		Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
 		monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
-		m.setCurrentDirection(validRandomDirection(m));
+		if(!m.getType().equals("dahl")){
+			m.setCurrentDirection(validRandomDirection(m));
+			}
+		else{
+			m.setCurrentDirection(validDahlDirection(m));
+			}
+		
+	}
+	
+	public int validDahlDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
+		ArrayList<Integer> v = new ArrayList<Integer>(); //contains all valid directions
+		for(int d = 1; d<3; d++){
+			if(hitBlock(m,d)==false){
+				v.add(d);
+			}
+		}
+		
+		if(v.size()>0){
+			Random rand = new Random();
+			int randIndex = rand.nextInt(v.size());
+			return v.get(randIndex);
+		}
+			
+		else{
+			for(int d = 3; d<5; d++){
+				if(hitBlock(m,d)==false){
+					v.add(d);
+				}
+			}
+			if(v.size()>0){
+				Random rand = new Random();
+				int randIndex = rand.nextInt(v.size());
+				return v.get(randIndex);
+			}	
+		}
+		return 0;
 	}
 	
 	public int validRandomDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
@@ -1234,6 +1294,40 @@ class GamePanel extends JPanel implements KeyListener{
 
 		m.moveStraight(m.getSpeed());
 	}
+	
+	public void dahlMovement(Monster m){
+		int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
+		int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
+		ArrayList<Integer> v = new ArrayList<Integer>(); 
+		
+		if(gX%2==1 && gY%2==1){
+			if(m.getCurrentDirection()==UP || m.getCurrentDirection()==DOWN){ //if monster is going up/down
+				if(!hitBlock(m,LEFT)){
+					v.add(LEFT);
+				}
+				if(!hitBlock(m,RIGHT)){
+					v.add(RIGHT);
+				}
+			}
+			
+		}
+			
+		if(v.size()>0){
+			Random rand = new Random();
+			int randIndex = rand.nextInt(v.size());
+			m.setCurrentDirection(v.get(randIndex));
+		}
+			
+		else if(hitBlock(m,m.getCurrentDirection())){
+			m.setCurrentDirection(validDahlDirection(m));
+		}
+		
+		else if(m.getCurrentDirection()==0 && validDahlDirection(m)!=0){
+			m.setCurrentDirection(validDahlDirection(m));
+		}
+
+		m.moveStraight(m.getSpeed());
+	}
 
 	public void targetMovement(Monster m, Node[][] nodes){
 		if(((int)(m.getX())-7)%45<2 && ((int)(m.getY())-7-65)%45<2){
@@ -1312,10 +1406,15 @@ class GamePanel extends JPanel implements KeyListener{
 	}
 	
 	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
-		if(m.getType().equals("ballom") || m.getType().equals("dahl")){
+		if(m.getType().equals("ballom")){
 			m.addToSpriteCounter();
 			randomMovement(m);
 		}
+		 
+		else if(m.getType().equals("dahl")){
+			m.addToSpriteCounter();
+			dahlMovement(m);
+			}
 		
 		else if(m.getType().equals("onil") || m.getType().equals("minvo")){
 			m.addToSpriteCounter();
