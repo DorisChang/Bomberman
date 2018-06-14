@@ -114,7 +114,12 @@ class GameMenu extends JFrame implements KeyListener{ //JFrame for the game/main
  		}
     
     public void keyPressed(KeyEvent e){
-		keys[e.getKeyCode()] = true;
+    	try{
+			keys[e.getKeyCode()] = true;
+    	}
+    	catch(ArrayIndexOutOfBoundsException weirdButton){
+    		System.out.println("Weird key pressed");
+    	}
 			
 		if(keys[KeyEvent.VK_SPACE]){ //when SPACE is pressed
 			menu.instructions(); //show the instructions 
@@ -174,7 +179,7 @@ class GamePanel extends JPanel implements KeyListener{
 	private int mx,sx,sNum;
 	private Image back,sBlock;
 	private int lives = 3;
-	private int level = 1;
+	private int level = 6;
 	private int dropMax; //current level on
 	private int points = 0;
 	private int monstersKilled = 0;
@@ -429,7 +434,7 @@ class GamePanel extends JPanel implements KeyListener{
 					}
 				}
 		
-				g.drawImage(bombermanSprites[p.getDirection()-1][p.getSpriteCounter()%3],p.getX()-7,p.getY()-7,this);
+				g.drawImage(bombermanSprites[p.getDirection()-1][(p.getSpriteCounter()/2)%3],p.getX()-7,p.getY()-7,this);
 		
 				for(int r=0; r<13; r++){ //row
 					for(int c=0; c<27; c++){ //column
@@ -445,7 +450,7 @@ class GamePanel extends JPanel implements KeyListener{
 				for(Monster m : monsters){
 					//System.out.println(m.getType());
 					if(m.getType().equals("ballom")){
-						g.drawImage(ballomSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(ballomSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						//g.setColor(new Color(244, 152, 66)); //ORANGE
 						//g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -454,7 +459,7 @@ class GamePanel extends JPanel implements KeyListener{
 						//g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
 						}
 					else if(m.getType().equals("onil")){
-						g.drawImage(onilSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(onilSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						/*g.setColor(new Color(130, 225, 242)); //BLUE
 						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -463,7 +468,7 @@ class GamePanel extends JPanel implements KeyListener{
 						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
 						}
 					else if(m.getType().equals("dahl")){
-						g.drawImage(dahlSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(dahlSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						/*g.setColor(new Color(241, 131, 129)); //RED/PINK
 						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -472,7 +477,7 @@ class GamePanel extends JPanel implements KeyListener{
 						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
 						}
 					else if(m.getType().equals("minvo")){
-						g.drawImage(minvoSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(minvoSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						/*g.setColor(new Color(240, 239, 129)); //YELLOW
 						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -481,7 +486,7 @@ class GamePanel extends JPanel implements KeyListener{
 						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
 						}
 					else if(m.getType().equals("doria")){
-						g.drawImage(doriaSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(doriaSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						/*g.setColor(new Color(202, 128, 237)); //PURPLE
 						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -491,7 +496,7 @@ class GamePanel extends JPanel implements KeyListener{
 						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
 						}
 					else if(m.getType().equals("ovape")){
-						g.drawImage(ovapeSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(ovapeSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						/*g.setColor(new Color(109, 67, 67)); //BROWN
 						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -501,7 +506,7 @@ class GamePanel extends JPanel implements KeyListener{
 						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
 						}
 					else if(m.getType().equals("pontan")){
-						g.drawImage(pontanSprites[m.getSpriteCounter()%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+						g.drawImage(pontanSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						/*g.setColor(new Color(37, 7, 155)); //NAVY
 						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
 						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
@@ -831,6 +836,8 @@ class GamePanel extends JPanel implements KeyListener{
 		if(gameOver && keys[KeyEvent.VK_SPACE]){
 			level = 1;
 			lives = 3;
+			points = 0;
+			displayPoints = 0;
 			screenFreeze=0;
 			gameOver = false;
 			gameOverMusic.stop();
