@@ -1,8 +1,6 @@
-//gyishudkqadhajdisakdssk
-
-
 //finalProject.java
 //Minya Bai & Doris Chang
+//Bomberman
 import java.util.Random;
 import java.util.ArrayList;
 import java.awt.*;
@@ -16,10 +14,8 @@ import java.util.Scanner;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import java.io.File;
 import java.io.FileInputStream;
-
 import java.applet.Applet;
 import java.applet.AudioClip;
 
@@ -48,11 +44,8 @@ public class finalProject extends JFrame implements ActionListener{
 		game = new GamePanel();
 		add(game);
 		
-		titleScreen = Applet.newAudioClip(getClass().getResource("sounds/01_Title Screen.wav"));
-		//myTimer.start();
- 		//setVisible(true);
+		titleScreen = Applet.newAudioClip(getClass().getResource("sounds/01_Title Screen.wav")); //import the title screen music
  		titleScreen.loop();
- 	
 
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,7 +55,7 @@ public class finalProject extends JFrame implements ActionListener{
 
 	public void actionPerformed(ActionEvent e){
 		if(game != null){
-			game.start();
+			game.update();
 			game.repaint();
 		}
 	}
@@ -78,12 +71,9 @@ public class finalProject extends JFrame implements ActionListener{
 	public void start(){ //used to start the game
 		titleScreen.stop();
  		myTimer.start();
- 		game.start();
+ 		game.update();
  		setVisible(true);
  		}
- 		
- 		
-
 }
 
 
@@ -92,7 +82,7 @@ class GameMenu extends JFrame implements KeyListener{ //JFrame for the game/main
  	private boolean [] keys;
  	
  	public GameMenu(finalProject m){
- 		super("game menu");
+ 		super("Game Menu");
  		
 		setSize(720,690);
  		menu = m;
@@ -110,6 +100,7 @@ class GameMenu extends JFrame implements KeyListener{ //JFrame for the game/main
  		addKeyListener(this);
  		setVisible(true);
  		keys = new boolean[KeyEvent.KEY_LAST+1];
+ 		setResizable(false);
  		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
  		}
     
@@ -138,7 +129,7 @@ class InstructMenu extends JFrame implements KeyListener{ //the instructions men
  	private boolean [] keys;
  	
  	public InstructMenu(finalProject m){
- 		super("instructions");
+ 		super("Instructions");
  		setSize(720,690);
  		bg = m;
  		
@@ -155,6 +146,7 @@ class InstructMenu extends JFrame implements KeyListener{ //the instructions men
  		addKeyListener(this);
  		setVisible(true);
  		keys = new boolean[KeyEvent.KEY_LAST+1];
+ 		setResizable(false);
  		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
  		}
  	
@@ -167,23 +159,23 @@ class InstructMenu extends JFrame implements KeyListener{ //the instructions men
 			}
 		}
 		
-	public void keyReleased(KeyEvent e){
-		}
-	public void keyTyped(KeyEvent e){ 
-		}
-	}
+	public void keyReleased(KeyEvent e){}
+	
+	public void keyTyped(KeyEvent e){}
+}
 
 class GamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private Player p;
-	private int mx,sx,sNum;
+	private int mx,sNum;
 	private Image back,sBlock;
-	private int lives = 3;
-	private int level = 6;
+	private int lives = 3; 
+	private int level = 7; 
 	private int dropMax; //current level on
-	private int points = 0;
-	private int monstersKilled = 0;
-	private int displayPoints = 0;
+	private int points = 0; //points collected in total
+	private int displayPoints = 0; //used for gradually displaying the points going up
+	private int monstersKilled = 0; //monsters killed in total
+	private int blocksDestroyed = 0; //blocks destroyed in total
 	private LinkedList<Bomb> bombs = new LinkedList<Bomb>();
 	private ArrayList<Bomb> emptyBombs = new ArrayList<Bomb>();
 	private Rectangle gate;
@@ -191,33 +183,38 @@ class GamePanel extends JPanel implements KeyListener{
 	private boolean dropBomb; //if bomb is on screen
 	private int bombsLeft;
 	private boolean playTheme = false; //used for checking if the music is already playing
-	private boolean stageStartMusic = false; //used for checking if the music is already playing
-	private int newLevelScreen = 80; //used to time how long the new level screen stays on screen for
-	private int screenFreeze = 0; //used to time how long the keep screen frozen for
-	private boolean lifeLostMusic = false;
-	private boolean gameOver = false;
-	private boolean gameOverMusicOn = false;
-	private boolean wonGame = false;
-	private boolean wonGameMusicOn = false;
+	private boolean stageStartMusicOn = false; //used for checking if the music is already playing
+	private int newLevelScreen = 80; //used to time how long the new level screen stays on for
+	private boolean lifeLostMusicOn = false; //used for checking if the music is already playing
+	private boolean gameOver = false; //used to check if the player lost yet
+	private boolean gameOverMusicOn = false; //used for checking if the music is already playing
+	private boolean wonGame = false; //used to check if the player has won
+	private boolean wonGameMusicOn = false; //used for checking if the music is already playing
 	
-	private Node[][] nodesAll;
-	private Node[][] nodesPassSoftBlocks; //used for enemies that can pass through softwalls
+	//grids used for deciding the shortest path
+	private Node[][] nodesAll; //contains the hard blocks and soft blocks
+	private Node[][] nodesPassSoftBlocks; //contains the hard blocks, used for enemies that can pass through soft blocks
 
 	private ArrayList<Powerup> powerUps = new ArrayList<Powerup>();
-	
+
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
-	
-	private Block grid[][] = new Block [13][27];
-	private ArrayList<Monster> monsters = new ArrayList<Monster>();
-	private ArrayList<String> allMonsters = new ArrayList<String>();
-	private ArrayList<String> allLevels = new ArrayList<String>();
+	private Block grid[][] = new Block [13][27]; //grid used for the whole game, contains the soft blocks, hard blocks, and bombs
+	private ArrayList<Monster> monsters = new ArrayList<Monster>(); //contains all the monsters on the current level
+	private ArrayList<String> allMonsters = new ArrayList<String>(); //contains all the possible monsters 
+	private ArrayList<String> allLevels = new ArrayList<String>(); //contains the specifics of the level (eg. the number of each type of enemy)
 
 	//POWERUPS
 	private boolean detonator;// = true;
+	
+	//IMPORT FONT
 	public Font joystixSmall, joystixMedium, joystixLarge;
-		
-	private Image heart = new ImageIcon("sprites/heart.png").getImage();
+	
+	//IMAGES/SPRITES	
+	private Image heart = new ImageIcon("sprites/heart.png").getImage(); 
+	private Image gateImage = new ImageIcon("gate.png").getImage();
 	private Image[][] bombermanSprites = new Image[4][3];
+	private Image[] bombermanDeathSprites = new Image[7];
+	
 	private Image[] ballomSprites = new Image[6];
 	private Image[] onilSprites = new Image[6];
 	private Image[] dahlSprites = new Image[6];
@@ -225,17 +222,27 @@ class GamePanel extends JPanel implements KeyListener{
 	private Image[] doriaSprites = new Image[6];
 	private Image[] ovapeSprites = new Image[6];
 	private Image[] pontanSprites = new Image[6];
+	private Image ballomHit = new ImageIcon("sprites/ballomHit.png").getImage();
+	private Image onilHit = new ImageIcon("sprites/onilHit.png").getImage();
+	private Image dahlHit = new ImageIcon("sprites/dahlHit.png").getImage();
+	private Image minvoHit = new ImageIcon("sprites/doriaHit.png").getImage();
+	private Image doriaHit = new ImageIcon("sprites/doriaHit.png").getImage();
+	private Image ovapeHit = new ImageIcon("sprites/ovapeHit.png").getImage();
+	private Image pontanHit = new ImageIcon("sprites/pontanHit.png").getImage();
+	private Image[][] monsterDeathSprites = new Image[3][4];
 	
-	private Image gateImage = new ImageIcon("gate.png").getImage();
+	private Image[] bombSprites = new Image[3];
+	private Image[][] explosionSprites = new Image[3][8];
+	private Image[][] explosionEdgeSprites = new Image[4][8];
 	
-	public AudioClip titleScreen, stageStart, stageTheme, stageComplete, lifeLost, gameOverMusic, ending;
+	public AudioClip titleScreen, stageStart, stageTheme, lifeLost, gameOverMusic, ending, bombExplode;
 
 	public GamePanel(){
 		setFocusable(true);
 		addKeyListener(this);
 		requestFocus();
 
-		detonator = true;
+		detonator = false;
 		dropMax = 1;
 
 		back = new ImageIcon("back.png").getImage(); //background of the game when playing
@@ -243,6 +250,7 @@ class GamePanel extends JPanel implements KeyListener{
 
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 		
+		//IMPORT FONT
 		try{
 			joystixSmall = Font.createFont(Font.TRUETYPE_FONT,new File("joystix monospace.ttf")).deriveFont(Font.PLAIN,24);
 		}
@@ -252,18 +260,15 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 		joystixMedium = joystixSmall.deriveFont(35F);
 		joystixLarge = joystixSmall.deriveFont(40F);
-
-
-		//titleScreen = Applet.newAudioClip(getClass().getResource("sounds/01_Title Screen.wav"));
+		
     	stageStart = Applet.newAudioClip(getClass().getResource("sounds/02_Stage Start.wav"));
     	stageTheme = Applet.newAudioClip(getClass().getResource("sounds/03_Stage Theme.wav"));
-    	stageComplete = Applet.newAudioClip(getClass().getResource("sounds/05_Stage Complete.wav"));
     	lifeLost = Applet.newAudioClip(getClass().getResource("sounds/08_Life Lost.wav"));
     	gameOverMusic = Applet.newAudioClip(getClass().getResource("sounds/09_Game Over.wav"));
     	ending = Applet.newAudioClip(getClass().getResource("sounds/10_Ending.wav"));
-    	//stageTheme.play();
+    	bombExplode = Applet.newAudioClip(getClass().getResource("sounds/11_Explosion.wav"));
 
-		try{ //reading the monster file 
+		try{ //reading the monsters file 
 			Scanner inFile = new Scanner(new BufferedReader(new FileReader("monsters.txt")));
 			while(inFile.hasNextLine()){
 				String nextLine = inFile.nextLine();
@@ -287,154 +292,196 @@ class GamePanel extends JPanel implements KeyListener{
 
 		loadSprites();
 
-		startLevel(level); //start at level 1
-		
+		startLevel(level);
 	}
 
 	public void loadSprites(){
-		//bombermanSprites = new ImageIcon("sprites/bombermanleft1.png").getImage();
 		for(int i=1 ;i<5;i++){
 			for(int k=1;k<4;k++){
 				bombermanSprites[i-1][k-1] = new ImageIcon("sprites/bomberman"+i+k+".png").getImage();
-				}
 			}
+		}
 		for(int i=1; i<7; i++){
 			ballomSprites[i-1] = new ImageIcon("sprites/ballom1"+i+".png").getImage();
-			}
+		}
 		for(int i=1; i<7; i++){
 			onilSprites[i-1] = new ImageIcon("sprites/onil"+i+".png").getImage();
-			}
+		}
 		for(int i=1; i<7; i++){
 			dahlSprites[i-1] = new ImageIcon("sprites/dahl"+i+".png").getImage();
-			}
+		}
 		for(int i=1; i<7; i++){
 			minvoSprites[i-1] = new ImageIcon("sprites/minvo"+i+".png").getImage();
-			}
+		}
 		for(int i=1; i<7; i++){
 			doriaSprites[i-1] = new ImageIcon("sprites/doria"+i+".png").getImage();
-			}
+		}
 		for(int i=1; i<7; i++){
 			ovapeSprites[i-1] = new ImageIcon("sprites/ovape"+i+".png").getImage();
-			}
+		}
 		for(int i=1; i<7; i++){
 			pontanSprites[i-1] = new ImageIcon("sprites/pontan"+i+".png").getImage();
-			}	
 		}
+		for(int i=1; i<4; i++){
+			bombSprites[i-1] = new ImageIcon("sprites/bomb"+i+".png").getImage();
+		}
+		for(int i=1 ; i<4;i++){
+			for(int k=1; k<5;k++){
+				explosionSprites[i-1][k-1] = new ImageIcon("sprites/explosion"+(i-1)+k+".png").getImage();
+			}
+		}
+		for(int i=1; i<4; i++){
+			for(int k=5; k<9; k++){
+				explosionSprites[i-1][k-1] = new ImageIcon("sprites/explosion"+(i-1)+(9-k)+".png").getImage(); 
+			}
+		}
+		for(int i=1 ; i<5;i++){
+			for(int k=1; k<5;k++){
+				explosionEdgeSprites[i-1][k-1] = new ImageIcon("sprites/explosionEdge"+i+k+".png").getImage();
+			}
+		}
+		for(int i=1; i<5; i++){
+			for(int k=5; k<9; k++){
+				explosionEdgeSprites[i-1][k-1] = new ImageIcon("sprites/explosionEdge"+i+(9-k)+".png").getImage(); 
+			}
+		}
+		for(int i=1 ; i<4;i++){
+			for(int k=1; k<5;k++){
+				monsterDeathSprites[i-1][k-1] = new ImageIcon("sprites/monsterDeath"+i+k+".png").getImage();
+			}
+		}
+		for(int i=1; i<8; i++){
+			bombermanDeathSprites[i-1] = new ImageIcon("sprites/bombermanDeath"+i+".png").getImage();
+		}		
+	}
 
 	public void startLevel(int level){
-		
 		p = new Player();
-		//stageTheme.loop();
 
 		powerUps.clear();
+		bombs.clear();
+		monsters.clear();
 		
 		newLevelScreen = 80;
-		stageStartMusic = false;
-		lifeLostMusic = false;
+		stageStartMusicOn = false;
+		lifeLostMusicOn = false;
 
 		newGrid(grid);
 		addSoftBlocks(50);
 		
-		mx = 0;
+		mx = 0; 
 
 		dropBomb = true;
-
-		//points = 0;
-		//displayPoints = 0;
 		bombsLeft = dropMax;
-
-		bombs.clear();
-		monsters.clear();
 		
+		//get the specifics of this level and add the monsters accordingly
 		String [] infoList = allLevels.get(level-1).split(",");
 		for(int n = 0; n<7; n++){
 			for(int i = 0; i<Integer.parseInt(infoList[n]); i++){
 				addMonster(n);
-				//System.out.println(n);
 			}
 		}
 	}
 
 	@Override
 	public void paintComponent(Graphics g){
-		//g.drawImage(back,mx,0,this);
-		//g.drawImage(door,(int)exit.getX()+mx,(int)exit.getY(),this);
-		
-		//g.setColor(new Color(23,223,186));
-		
 		if(!gameOver && !wonGame){
-			if(newLevelScreen>0 && screenFreeze<0){
+			if(newLevelScreen>0){
 				g.setColor(new Color(0,0,0));
 				g.fillRect(0,0,720,690);
 				g.setColor(new Color(250,250,250));
-				//g.setFont(new Font("Calibri",Font.PLAIN,50));
 				g.setFont(joystixMedium);
 				String levelMessage = "LEVEL " + level;
 				g.drawString(levelMessage,260,300);
 				
-				if(stageStartMusic == false){
-					playStageStartMusic();
-					stageStartMusic = true;
+				if(stageStartMusicOn == false){
+					stageStart.play();
+					stageStartMusicOn = true;
 					}
 				 }
-			else if(screenFreeze<0){
+			else{
 				g.drawImage(back,mx,0,this);
-	
 				g.setColor(new Color(0,0,255));
 				
-				Rectangle cRect = p.getRect(0);
-				g.drawRect((int)(cRect.getX()),(int)(cRect.getY()),(int)(cRect.getWidth()),(int)(cRect.getHeight()));
-				
-				//System.out.printf("Gate rect X: "+(int)(gate.getX()/45)+" Gate rect Y: "+(int)(gate.getY()/45)+"\n");
-				//g.fillRect((int)(gate.getX()+mx),(int)(gate.getY()),(int)(gate.getWidth()),(int)(gate.getHeight()));
+
+				System.out.printf("Gate rect X: "+(int)(gate.getX()/45)+" Gate rect Y: "+(int)(gate.getY()/45)+"\n");
 				g.drawImage(gateImage,(int)(gate.getX()+mx),(int)(gate.getY()),this);
 
 				for(int j = 0; j < powerUps.size(); j ++){
 					Rectangle r = powerUps.get(j).getRect();
 					g.drawRect((int)r.getX()+mx,(int)r.getY(),37,37);
 				}
-		
-				//g.setColor(new Color(0,0,255));
 
 				if(dropBomb){
 					for(Bomb b : bombs){
 						if(b!= null){
-							if(b.getDT() != 0){
-								//System.out.println("Bomb!");
-								g.setColor(new Color(0,0,0));
-								g.fillRect(b.getBX()*45+mx,b.getBY()*45+65,45,45);
+							if(b.getDT() >= 0){
+								g.drawImage(bombSprites[(b.getSpriteCounter()/5)%3],(int)(b.getBX()*45+mx+4),(int)(b.getBY()*45+69),this);
 							}
 
 							if(b.getET() >= 0 && b.getDT() == 0){
 								int r = b.getRange();
 								//System.out.println("Explode!");
-								g.setColor(new Color(255,100,0));
-								//g.fillRect((int)b.getBombRect().getX()*45+3+mx,(int)b.getBombRect().getY()*45+67,(int)b.getBombRect().getWidth(),(int)b.getBombRect().getHeight());
+								g.drawImage(explosionSprites[0][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)(b.getBY()*45+65),this);
+								//g.setColor(new Color(255,100,0));
+								//g.fillRect((int)b.getBombRect().getX()*45+mx,(int)b.getBombRect().getY()*45+65,(int)b.getBombRect().getWidth(),(int)b.getBombRect().getHeight());
 
 								for(int i = 1; i < r+1; i++){
-									if(b.isOccupied(0,i-1) == false){
-										g.fillRect(b.getBX()*45-45*i+mx,b.getBY()*45+65+10,45,25);
+									if(b.isOccupied(0,i-1) == false){ //LEFT
+										//g.fillRect(b.getBX()*45-45*i+mx,b.getBY()*45+65+10,45,25);
+										if(i!=r){
+											g.drawImage(explosionSprites[1][b.getExplosionStage()],(int)((b.getBX()-i)*45+mx),(int)(b.getBY()*45+65),this);
+										}
+										else{
+											g.drawImage(explosionEdgeSprites[1][b.getExplosionStage()],(int)((b.getBX()-i)*45+mx),(int)(b.getBY()*45+65),this);
+											}
+										
 									}
 
-									if(b.isOccupied(1,i-1) == false){
-										g.fillRect(b.getBX()*45+45*i+mx,b.getBY()*45+65+10,45,25);
+									if(b.isOccupied(1,i-1) == false){ //RIGHT
+										//g.fillRect(b.getBX()*45+45*i+mx,b.getBY()*45+65+10,45,25);
+										//g.drawImage(explosionSprites[1][b.getExplosionStage()],(int)((b.getBX()+i)*45+mx),(int)(b.getBY()*45+65),this);
+										if(i!=r){
+											g.drawImage(explosionSprites[1][b.getExplosionStage()],(int)((b.getBX()+i)*45+mx),(int)(b.getBY()*45+65),this);
+										}
+										else{
+											g.drawImage(explosionEdgeSprites[0][b.getExplosionStage()],(int)((b.getBX()+i)*45+mx),(int)(b.getBY()*45+65),this);
+											}
 									}
 
-									if(b.isOccupied(2,i-1) == false){
-										g.fillRect(b.getBX()*45+mx+10,(int)b.getBY()*45+65-45*i,25,45);	
+									if(b.isOccupied(2,i-1) == false){ //UP
+										//g.fillRect(b.getBX()*45+mx+10,(int)b.getBY()*45+65-45*i,25,45);
+										//g.drawImage(explosionSprites[2][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)((b.getBY()-i)*45+65),this);	
+										if(i!=r){
+											g.drawImage(explosionSprites[2][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)((b.getBY()-i)*45+65),this);
+										}
+										else{
+											g.drawImage(explosionEdgeSprites[2][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)((b.getBY()-i)*45+65),this);
+											}
 									}
 									
-									if(b.isOccupied(3,i-1) == false){
-										g.fillRect(b.getBX()*45+mx+10,(int)b.getBY()*45+65+45*i,25,45);
+									if(b.isOccupied(3,i-1) == false){ //DOWN
+										//g.fillRect(b.getBX()*45+mx+10,(int)b.getBY()*45+65+45*i,25,45);
+										//g.drawImage(explosionSprites[2][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)((b.getBY()+i)*45+65),this);
+										if(i!=r){
+											g.drawImage(explosionSprites[2][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)((b.getBY()+i)*45+65),this);
+										}
+										else{
+											g.drawImage(explosionEdgeSprites[3][b.getExplosionStage()],(int)(b.getBX()*45+mx),(int)((b.getBY()+i)*45+65),this);
+										}	
 									}
 								}
-
 							}
 						}
 					}
 				}
-		
-				g.drawImage(bombermanSprites[p.getDirection()-1][(p.getSpriteCounter()/2)%3],p.getX()-7,p.getY()-7,this);
+				
+				if(p.getState()){
+					g.drawImage(bombermanSprites[p.getDirection()-1][(p.getSpriteCounter()/2)%3],p.getX()-7,p.getY()-7,this);
+					}
+				else{
+					g.drawImage(bombermanDeathSprites[p.getDeathStage()],p.getX()-7,p.getY()-7,this);
+					}
 		
 				for(int r=0; r<13; r++){ //row
 					for(int c=0; c<27; c++){ //column
@@ -448,191 +495,156 @@ class GamePanel extends JPanel implements KeyListener{
 				
 				//DRAWING MONSTERS aka enemies
 				for(Monster m : monsters){
-					//System.out.println(m.getType());
-					if(m.getType().equals("ballom")){
-						g.drawImage(ballomSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						//g.setColor(new Color(244, 152, 66)); //ORANGE
-						//g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						//g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//Rectangle bRect = m.getRect();
-						//g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));
+					if(m.getState()){ //if the monster is alive
+						if(m.getType().equals("ballom")){
+							g.drawImage(ballomSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
-					else if(m.getType().equals("onil")){
-						g.drawImage(onilSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						/*g.setColor(new Color(130, 225, 242)); //BLUE
-						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						Rectangle bRect = m.getRect();
-						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
+						else if(m.getType().equals("onil")){
+							g.drawImage(onilSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
-					else if(m.getType().equals("dahl")){
-						g.drawImage(dahlSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						/*g.setColor(new Color(241, 131, 129)); //RED/PINK
-						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						Rectangle bRect = m.getRect();
-						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
+						else if(m.getType().equals("dahl")){
+							g.drawImage(dahlSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
-					else if(m.getType().equals("minvo")){
-						g.drawImage(minvoSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						/*g.setColor(new Color(240, 239, 129)); //YELLOW
-						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						Rectangle bRect = m.getRect();
-						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
+						else if(m.getType().equals("minvo")){
+							g.drawImage(minvoSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
-					else if(m.getType().equals("doria")){
-						g.drawImage(doriaSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						/*g.setColor(new Color(202, 128, 237)); //PURPLE
-						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						//g.setColor(new Color(0,0,0));
-						g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						Rectangle bRect = m.getRect();
-						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
+						else if(m.getType().equals("doria")){
+							g.drawImage(doriaSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
-					else if(m.getType().equals("ovape")){
-						g.drawImage(ovapeSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						/*g.setColor(new Color(109, 67, 67)); //BROWN
-						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						g.setColor(new Color(0,0,0));
-						g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						Rectangle bRect = m.getRect();
-						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
+						else if(m.getType().equals("ovape")){
+							g.drawImage(ovapeSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
-					else if(m.getType().equals("pontan")){
-						g.drawImage(pontanSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
-						/*g.setColor(new Color(37, 7, 155)); //NAVY
-						g.fillRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						//System.out.printf("bX: %d, bY: %d \n",m.getX(),m.getY());
-						g.setColor(new Color(0,0,0));
-						g.drawRect((int)(m.getX())+mx,(int)(m.getY()),31,31);
-						Rectangle bRect = m.getRect();
-						g.drawRect((int)(bRect.getX()+mx),(int)(bRect.getY()),(int)(bRect.getWidth()),(int)(bRect.getHeight()));*/
-						}
-				}
-		
-				//System.out.println(dropBomb);
-		
-				/*if(dropBomb){
-					for(Bomb b : bombs){
-						if(b!= null){
-							if(b.getDT() != 0){
-								//System.out.println("Bomb!");
-								g.setColor(new Color(0,0,0));
-								g.fillRect((int)b.getBombRect().getX()*45+3+mx,(int)b.getBombRect().getY()*45+67,(int)b.getBombRect().getWidth(),(int)b.getBombRect().getHeight());
-							}
-		
-							if(b.getET() > 0 && b.getDT() == 0){
-								//System.out.println("Explode!");
-								g.setColor(new Color(255,100,0));
-		
-								g.fillRect((int)b.getBombRect().getX()*45+3+mx,(int)b.getBombRect().getY()*45+67,(int)b.getBombRect().getWidth(),(int)b.getBombRect().getHeight());
-		
-								for(int i = 0; i < 4; i++){
-									g.fillRect((int)(int)b.getExpRect(i).getX()+mx,(int)b.getExpRect(i).getY()-2,(int)b.getExpRect(i).getWidth(),(int)b.getExpRect(i).getHeight());
-								}
-							}
+						else if(m.getType().equals("pontan")){
+							g.drawImage(pontanSprites[(m.getSpriteCounter()/2)%6],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
 						}
 					}
-				}*/
+					else if(!m.getState()){ //if the monster has been bombed
+						m.deathTimerTick(); //keep counting down, used for displaying the monster's death
+						if(m.getDeathStage()<5){
+							if(m.getType().equals("ballom")){
+								if(m.getDeathStage()==0){ //if in the first phase of death, show the alarmed sprite
+									g.drawImage(ballomHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{ //if in later phases, show the shrinking sprites
+									g.drawImage(monsterDeathSprites[0][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}
+							else if(m.getType().equals("onil")){
+								if(m.getDeathStage()==0){
+									g.drawImage(onilHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{
+									g.drawImage(monsterDeathSprites[1][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}
+							else if(m.getType().equals("dahl")){
+								if(m.getDeathStage()==0){
+									g.drawImage(dahlHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{
+									g.drawImage(monsterDeathSprites[2][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}
+							else if(m.getType().equals("minvo")){
+								if(m.getDeathStage()==0){
+									g.drawImage(minvoHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{
+									g.drawImage(monsterDeathSprites[0][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}
+							else if(m.getType().equals("doria")){
+								if(m.getDeathStage()==0){
+									g.drawImage(doriaHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{
+									g.drawImage(monsterDeathSprites[1][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}
+							else if(m.getType().equals("ovape")){
+								if(m.getDeathStage()==0){
+									g.drawImage(ovapeHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{
+									g.drawImage(monsterDeathSprites[2][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}
+							else if(m.getType().equals("pontan")){
+								if(m.getDeathStage()==0){
+									g.drawImage(pontanHit,(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+								else{
+									g.drawImage(monsterDeathSprites[2][m.getDeathStage()-1],(int)(m.getX()-7+mx),(int)(m.getY()-7),this);
+								}
+							}	
+						}
+					}
+				}
 				
+				//DISPLAY LIVES LEFT AND POINTS EARNED
 				for(int n = 0; n<lives-1; n++){
 					g.drawImage(heart,10+n*40,15,this);
 					} 
 						
 				g.setColor(new Color(0,0,0));
-				//g.setFont(new Font("Calibri",Font.PLAIN,25));
-				g.setFont(joystixSmall);
-				String livesMessage = "Lives Remaining: " + lives;
-				//g.drawString(livesMessage,10,25);
-				if(displayPoints<points){
-					displayPoints+=50;
+				
+				if(displayPoints<points){ //used to increase the points over a period of time
+					displayPoints+=100;
 					}
+				g.setFont(joystixSmall);
 				String pointsMessage = "POINTS: " + displayPoints;
 				g.drawString(pointsMessage,230,40);
 			}
 		}
 		
-		else if(gameOver){
+		else if(gameOver){ //if the player lost all 3 lives, show game over screen
 			g.setColor(new Color(0,0,0));
 			g.fillRect(0,0,720,690);
 			g.setColor(new Color(250,250,250));
-			//g.setFont(new Font("Calibri",Font.PLAIN,50));
 			g.setFont(joystixLarge);
 			g.drawString("GAME OVER",210,300);
 			g.setFont(joystixSmall);
 			g.drawString("PRESS [SPACE] TO RESTART",120,600);
 			}
-		else if(wonGame){
+			
+		else if(wonGame){ //if the player passed all levels, show 'You Finished!' screen with their stats
 			g.setColor(new Color(0,0,0));
 			g.fillRect(0,0,720,690);
 			g.setColor(new Color(250,250,250));
-			//g.setFont(new Font("Calibri",Font.PLAIN,50));
-			//g.setFont(joystix);
 			g.setFont(joystixLarge);
 			g.setFont(joystixLarge);
 			g.drawString("YOU FINISHED!",140,100);
-			String pointsText = String.format("%1$-16s %2$16d","TOTAL POINTS:",points);
-			//String.format("%1$-10s %2$10s", left, right);
+			String pointsText = String.format("%1$-16s %2$16d","TOTAL POINTS:",points); //format the string to be aligned
 			g.setFont(joystixSmall);
 			g.drawString(pointsText,20,300);
-			
 			String livesText = String.format("%1$-16s %2$16d","LIVES LEFT:",lives);
 			g.drawString(livesText,20,350);
-			
 			String monstersText = String.format("%1$-16s %2$16d","MONSTERS KILLED:",monstersKilled);
 			g.drawString(monstersText,20,400);
-			
+			String blocksText = String.format("%1$-16s %2$16d","WALLS DESTROYED:",blocksDestroyed);
+			g.drawString(blocksText,20,450);
 			g.setFont(joystixSmall);
 			g.drawString("PRESS [SPACE] TO RESTART",120,600);
 			}
 	}
-
 	
-	public void playThemeMusic(){
-		stageTheme.loop();
-		}
-		
-	public void playStageStartMusic(){
-		stageStart.play();
-		}
-	
-	public void start(){
-		if(!gameOver && !wonGame){
-			
-			if(newLevelScreen<=0 && playTheme == false){
-				playThemeMusic();
+	public void update(){ //used to continuously refresh the game
+		if(!gameOver && !wonGame && p.getState()){
+			if(newLevelScreen<=0 && playTheme == false && p.getState()){
+				stageTheme.loop();
 				playTheme = true;
-				}
+			}
 				
-			if(screenFreeze>0 && lifeLostMusic==false){
-				lifeLost.play();
-				lifeLostMusic = true;
-				}
-				
-			newLevelScreen -= 1;
-			screenFreeze -=1;
+			newLevelScreen -= 1; //count down the level screen timer
 			
-			if(screenFreeze<=0 && newLevelScreen<0){
+			if(newLevelScreen<0){
 				moveMan();
 		
 				if(playerHitMonster()){
 					stageTheme.stop();
 					playTheme = false;
 					lifeLost.play();
-					screenFreeze = 80;
-					if(lives>0){
-						startLevel(level);
-					}
-					else{
-						gameOver = true;
-					}
+					p.setState(false); //player has died
 				}
 
 				for(Bomb b : bombs){
@@ -647,7 +659,9 @@ class GamePanel extends JPanel implements KeyListener{
 				}
 				
 				for(Monster m:monsters){
-					moveMonster(m,m.getPath());
+					if(m.getState()){
+						moveMonster(m,m.getPath());
+					}
 				}
 
 				ArrayList<Powerup> pGrabbed = new ArrayList<Powerup>();
@@ -670,44 +684,46 @@ class GamePanel extends JPanel implements KeyListener{
 
 				//System.out.println("DROP MAX: "+dropMax);
 		
-				if(dropBomb){
-					for(Bomb b : bombs){
-						if(b != null){
-							int bx = b.getBX();
-							int by = b.getBY();
-
-							if(detonator == false){
-								b.detonate();
-								b.noActiveBombs();
+				if(dropBomb){ //if a bomb has been dropped
+					for(Bomb b : bombs){ //go through each bomb
+						if(b != null){ //if there is a bomb
+							int bx = b.getBX(); //get the x in the grid
+							int by = b.getBY(); //gets y in grid
+							
+							if(detonator == false){ //if you cannot control when the bomb goes off
+								b.detonate(); //start timer
+								//b.noActiveBombs(); //all directions are blocked, bomb is useless take off screen
 							}
 
-							if(detonator && b.getDT() == 0 && b.getET() >= 0){
-								b.detonate();
-								b.noActiveBombs();
+							if(detonator && b.getDT() == 0 && b.getET() >= 0){ //if you can control when bomb goes off
+								b.detonate(); //start timer (skips right to explosion time)
+								//b.noActiveBombs();
 							}
 
-							int r = b.getRange();
+							int r = b.getRange(); //gets the max range the bomb at reach
 
-							if(b.getET() >= 0 && b.getDT() == 0){
-								for(int i = 1; i < r+1 ; i++){
-									if(bx - i >= 0){
-										if(grid[by][bx-i] != null){
-											b.blockPresent(0,i-1);
+							if(b.getET() >= 0 && b.getDT() == 0){ //if it is exploding
+								for(int i = 1; i < r+1 ; i++){ //checks each layer from the bomb
+									if(bx - i >= 0){ //still in screen
+										if(grid[by][bx-i] != null){ //if there is another block there
+											b.blockPresent(0,i-1); //everything after that block is no-no
 
-											if(grid[by][bx-i].getType() == 2){
-												if(i > 1 && b.isOccupied(0,i-2) == false){
-													grid[by][bx-i] = null;
-													nodesAll[bx-i][by] = new Node(bx-i, by, true,10);
+											if(grid[by][bx-i].getType() == 2){ //if it is a soft block
+												if(i > 1 && b.isOccupied(0,i-2) == false){ //check if the previous block is open
+													grid[by][bx-i] = null; //that block is now empty
+													blocksDestroyed++;
+													nodesAll[bx-i][by] = new Node(bx-i, by, true,10); //let a smart enemy know there's nothing there now
 												}
 
-												else if(i == 1){
-													grid[by][bx-i] = null;
-													nodesAll[bx-i][by] = new Node(bx-i, by, true,10);
+												else if(i == 1){ //if it is the spot right next to bomb (there is no previous block to check)
+													grid[by][bx-i] = null; //that block is now empty
+													blocksDestroyed++;
+													nodesAll[bx-i][by] = new Node(bx-i, by, true,10); //let a smart enemy know there is nothing there now
 												}
 											}
 
-											else if(grid[by][bx-i].getType() == 3){
-												findBomb(bx-i,by).explosionTriggered();
+											else if(grid[by][bx-i].getType() == 3){ //if there is another bomb there
+												findBomb(bx-i,by).explosionTriggered(); //trigger the bomb there
 											}
 										}
 									}
@@ -719,11 +735,13 @@ class GamePanel extends JPanel implements KeyListener{
 											if(grid[by][bx+i].getType() == 2){
 												if(i > 1 && b.isOccupied(1,i-2) == false){
 													grid[by][bx+i] = null;
+													blocksDestroyed++;
 													nodesAll[bx+i][by] = new Node(bx+i, by, true,10);
 												}
 
 												else if(i == 1){
 													grid[by][bx+i] = null;
+													blocksDestroyed++;
 													nodesAll[bx+i][by] = new Node(bx+i, by, true,10);
 												}
 											}
@@ -741,11 +759,13 @@ class GamePanel extends JPanel implements KeyListener{
 											if(grid[by-i][bx].getType() == 2){
 												if(i > 1 && b.isOccupied(2,i-2) == false){
 													grid[by-i][bx] = null;
+													blocksDestroyed++;
 													nodesAll[bx][by-i] = new Node(bx, by-i, true,10);
 												}
 
 												else if(i == 1){
 													grid[by-i][bx] = null;
+													blocksDestroyed++;
 													nodesAll[bx][by-i] = new Node(bx, by-i, true,10);
 												}
 											}
@@ -763,11 +783,13 @@ class GamePanel extends JPanel implements KeyListener{
 											if(grid[by+i][bx].getType() == 2){
 												if(i > 1 && b.isOccupied(3,i-2) == false){
 													grid[by+i][bx] = null;
+													blocksDestroyed++;
 													nodesAll[bx][by+i] = new Node(bx, by+i, true,10);
 												}
 
 												else if(i == 1){
 													grid[by+i][bx] = null;
+													blocksDestroyed++;
 													nodesAll[bx][by+i] = new Node(bx, by+i, true,10);
 												}
 											}
@@ -796,6 +818,7 @@ class GamePanel extends JPanel implements KeyListener{
 							int by = b.getBY();
 
 							grid[by][bx] = null;
+							blocksDestroyed++;
 
 							bombs.remove(b);
 
@@ -825,37 +848,47 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 		
-		else if (gameOver){
+		else if(!p.getState()){
+					p.deathTimerTick();
+				}
+				
+				if(!p.getState() && lifeLostMusicOn == false){
+					lifeLost.play();
+					lifeLostMusicOn = true;
+					}
+					
+				if(p.getDeathTimer()<=0){
+					if(lives>0){
+						startLevel(level);
+					}
+					else{
+						gameOver = true;
+					}
+				}
+		
+		else if(gameOver){ //game over
 			if(!gameOverMusicOn){
 				gameOverMusic.play();
-				//ending.play();
 				gameOverMusicOn = true;		
 			}	
 		}
 		
-		if(gameOver && keys[KeyEvent.VK_SPACE]){
+		if(gameOver && keys[KeyEvent.VK_SPACE] || wonGame && keys[KeyEvent.VK_SPACE]){ //restart game from level 1
 			level = 1;
 			lives = 3;
 			points = 0;
 			displayPoints = 0;
-			screenFreeze=0;
+			monstersKilled = 0; 
+			blocksDestroyed = 0; 
 			gameOver = false;
 			gameOverMusic.stop();
 			lifeLost.stop();
-			lifeLostMusic = false;
+			ending.stop();
+			wonGame = false;
+			lifeLostMusicOn = false;
 			gameOverMusicOn = false;	
 			startLevel(level);
 			}
-			
-		if(wonGame && keys[KeyEvent.VK_SPACE]){
-			level = 1;
-			lives = 3;
-			screenFreeze=0;
-			wonGame = false;
-			ending.stop();	
-			startLevel(level);
-			}
-		
 	}
 
 	public Bomb findBomb(int x, int y){
@@ -869,12 +902,11 @@ class GamePanel extends JPanel implements KeyListener{
 	}
 
 	public void bombPlayer(Rectangle r){
-		//System.out.println("HALLLO");
 
 		Rectangle pRect = p.getActualRect(mx);
 		Rectangle rect = new Rectangle((int)r.getX(),(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());
 
-		if(pRect.intersects(rect)){
+		if(p.getState() && pRect.intersects(rect)){
 			//System.out.println("BOO");
 			lives-=1;
 			//bombs.clear();
@@ -882,17 +914,18 @@ class GamePanel extends JPanel implements KeyListener{
 			dropBomb = false;
 			stageTheme.stop();
 			playTheme = false;
-			screenFreeze = 80;
-			if(lives>0){
-				startLevel(level);
-			}
-			else{
-				gameOver = true;
-			}
+			//screenFreeze = 80;
+			//if(lives>0){
+				p.setState(false);
+				//startLevel(level);
+			//}
+			/*else{
+				p.setState(false);
+				//gameOver = true;
+			}*/
 		}
 	}
 
-	//ALL THREE MUST BE PRESENT
 	public void keyPressed(KeyEvent e){
 		keys[e.getKeyCode()] = true;
 	}
@@ -903,21 +936,22 @@ class GamePanel extends JPanel implements KeyListener{
 
 	public void keyTyped(KeyEvent e){}
 	
-	public Boolean hitBlock(int direction){
+	public Boolean hitBlock(int direction){ //ensures that the player stays on the valid path (don't walk across blocks)
 		int gX = (int)(Math.round(p.getX()+15.5-mx)/45); //closest column blocks
 		int gY = (int)(Math.round(p.getY()+15.5-65)/45); //closest row
 		
 		if(direction == RIGHT){
 			Rectangle bRect = p.getRightRect(mx);
 
-			if(grid[gY][gX+1] != null){ //if there is a block there 
+			if(grid[gY][gX+1] != null){ //if there is a block to the right
 				Rectangle r = (grid[gY][gX+1]).getRect(); //get rect of that block
-				
-				if(bRect.intersects(r)){
+	
+				if(bRect.intersects(r)){ //if they rectangles intersect, then player will hit the wall and therefore is not a valid move
 					return true;
 				}
 			}
 			
+			//check the other two blocks on the right above and below the previous block checked (ensures that the player is in the middle of the aisles, without any part on the blocks)
 			Rectangle r2 = new Rectangle(45*(gX+1),45*(gY+1)+65,45,45); 
 			if(bRect.intersects(r2)){
 				return true;
@@ -997,18 +1031,13 @@ class GamePanel extends JPanel implements KeyListener{
 
 	public void moveMan(){
 		if(keys[KeyEvent.VK_RIGHT]){
-
-			//System.out.println(hitBlock(RIGHT));
-
 			if(hitBlock(RIGHT)){
 				p.moveRight(0);
 			}
-
 			else{
 				//System.out.println("YO");
 				if(p.getX() > 225 && mx > -495){
 					mx -= 3;
-					sx += 3;
 					p.setDirection(RIGHT);
 					p.addToSpriteCounter();
 				}
@@ -1023,7 +1052,6 @@ class GamePanel extends JPanel implements KeyListener{
 			if(hitBlock(LEFT) == false){
 				if(p.getX() < 235 && mx < 0){
 					mx += 3;
-					sx -= 3;
 					p.setDirection(LEFT);
 					p.addToSpriteCounter();
 				}
@@ -1063,20 +1091,19 @@ class GamePanel extends JPanel implements KeyListener{
 			if(grid[by][bx] == null){
 				System.out.println("BOMBS LEFT: "+bombsLeft);
 				if(bombsLeft > 0){ //POWERUP EXCEPTION: if(dropBomb == false && multibomb == false) >> for multibomb, cant put two bombs same spot
-					//if(b.added() == false){
-						Bomb b = new Bomb(bx,by);
+					Bomb b = new Bomb(bx,by);
 
-						grid[by][bx] = new Block(bx,by,3); //bomb is 3
-						dropBomb = true;
+					grid[by][bx] = new Block(bx,by,3); //bomb is 3
+					dropBomb = true;
 
-						bombs.add(b);
+					bombs.add(b);
 
-						if(detonator == false){
-							b.detonate();
-						}
+					if(detonator == false){
+						b.detonate();
+					}
 
-						bombsLeft -= 1;
-					//}
+					bombsLeft -= 1;
+					
 				}
 			}
 		}
@@ -1107,21 +1134,17 @@ class GamePanel extends JPanel implements KeyListener{
 			randY = rand.nextInt(8)+3; //randomly generated Y
 		}
 
-		//if (randX%2 == 0){ //makes sure that the randomly generated spot is not occupied by a hardblock
-		//	randY+=(randY%2==0?1:0); //adjusts to an available position
-		//}
 		Monster m = new Monster(allMonsters.get(type)+","+(randX*45+7)+","+(randY*45+72),path,mx);
-		monsters.add(m); //NEED TO CHANGE THE "RIGHT" TO TAKE INTO CONSIDERATION OF ACTUAL SURROUNDINGS
+		monsters.add(m); 
 		if(!m.getType().equals("dahl")){
 			m.setCurrentDirection(validRandomDirection(m));
-			}
-		else{
+		}
+		else{ //dahl has its special movements (prefers to move horizontally)
 			m.setCurrentDirection(validDahlDirection(m));
-			}
-		
+		}
 	}
 	
-	public int validDahlDirection(Monster m){ //finds all valid directions for the monster to go and return a random one
+	public int validDahlDirection(Monster m){ //finds all valid directions for dahl to go, giving preferance to horizontal directions
 		ArrayList<Integer> v = new ArrayList<Integer>(); //contains all valid directions
 		for(int d = 1; d<3; d++){
 			if(hitBlock(m,d)==false){
@@ -1173,12 +1196,10 @@ class GamePanel extends JPanel implements KeyListener{
 		int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
 		int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
 		
-		//System.out.printf("mX: %d mY: %d\n",gX,gY);
-		
 		if(direction == RIGHT){
 			Rectangle bRect = m.getRightRect();
 			
-			if(m.getType().equals("ovape") && grid[gY][gX+1]!=null && grid[gY][gX+1].getType()==1 || !m.getType().equals("ovape") && grid[gY][gX+1]!=null){ //if there is a block there 
+			if(m.getType().equals("ovape") && grid[gY][gX+1]!=null && grid[gY][gX+1].getType()==1 || !m.getType().equals("ovape") && grid[gY][gX+1]!=null){ //if there is a block there, ovape is able to pass through soft blocks 
 				Rectangle r = (grid[gY][gX+1]).getRect(); //get rect of that block
 				if(bRect.intersects(r)){
 					return true;
@@ -1201,7 +1222,6 @@ class GamePanel extends JPanel implements KeyListener{
 			
 			if(m.getType().equals("ovape") && grid[gY][gX-1]!=null && grid[gY][gX-1].getType()==1 || !m.getType().equals("ovape") && grid[gY][gX-1]!=null){
 				Rectangle r = (grid[gY][gX-1]).getRect();
-				//Rectangle rL = p.getRect(LEFT);
 
 				if(bRect.intersects(r)){
 					return true;
@@ -1220,7 +1240,6 @@ class GamePanel extends JPanel implements KeyListener{
 
 		else if(direction == UP){
 			Rectangle bRect = m.getUpRect();
-			//System.out.println(m.getType().equals("ovape"));
 			if(m.getType().equals("ovape") && grid[gY-1][gX]!=null && grid[gY-1][gX].getType()==1 || !m.getType().equals("ovape") && grid[gY-1][gX]!=null){
 				Rectangle r = (grid[gY-1][gX]).getRect();
 				if(bRect.intersects(r)){
@@ -1336,13 +1355,12 @@ class GamePanel extends JPanel implements KeyListener{
 		m.moveStraight(m.getSpeed());
 	}
 
-	public void targetMovement(Monster m, Node[][] nodes){
-		if(((int)(m.getX())-7)%45<2 && ((int)(m.getY())-7-65)%45<2){
+	public void targetMovement(Monster m, Node[][] nodes){ //used for monsters that follow the shortest path to the player
+		if(((int)(m.getX())-7)%45<2 && ((int)(m.getY())-7-65)%45<2){ //find the shortest path and set it to be the current path
 			m.setPath(getArray(m,findPath(nodes,(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45),(int)(Math.round(p.getX()-mx+15.5)/45),(int)(Math.round(p.getY()+15.5-65)/45))));
 		}
 			
-		if(m.getPath().size()>0){
-			//System.out.println(path.get(0));
+		if(m.getPath().size()>0){ //if there is a path the monster should follow
 			int nextInstruction = m.getPath().get(0); //gets the next direction the monster should head to
 			if(nextInstruction==RIGHT){
 				m.setCurrentDirection(RIGHT);
@@ -1361,16 +1379,11 @@ class GamePanel extends JPanel implements KeyListener{
 			
 			//System.out.printf("Monster X: %d  Monster Y: %d\n",(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45));
 			if((int)((m.getY()-72)%45)==0 && (int)((m.getX()-7))%45==0){ //if a direction was followed, remove it 
-				//System.out.println("hello");
 				m.pathRemoveFirst();
 			}
 		}
-		//System.out.printf("Monster X: %d  Monster Y: %d\n",(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45));
 		
-		if(m.getPath().size()==0){
-			//System.out.println("nothing in path");
-			//m.setPath(getArray(m,findPath((int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45),(int)(Math.round(p.getX()-mx+15.5)/45),(int)(Math.round(p.getY()+15.5-65)/45))));
-			//if(m.getPath().size()==0){
+		if(m.getPath().size()==0){ //if there is no path the monster can follow that will lead to the player, move randomly
 			int gX = (int)(Math.round(m.getX()+15.5)/45); //closest column blocks
 			int gY = (int)(Math.round(m.getY()+15.5-65)/45); //closest row
 			ArrayList<Integer> v = new ArrayList<Integer>(); 
@@ -1413,17 +1426,17 @@ class GamePanel extends JPanel implements KeyListener{
 	}
 	
 	public void moveMonster(Monster m, ArrayList<Integer> path){ //takes in the monster and path the monster should take
-		if(m.getType().equals("ballom")){
+		if(m.getType().equals("ballom")){ //moves randomly, can not pass through bombs
 			m.addToSpriteCounter();
 			randomMovement(m);
 		}
 		 
-		else if(m.getType().equals("dahl")){
+		else if(m.getType().equals("dahl")){ //prefers to move horizontally, can not pass through bombs
 			m.addToSpriteCounter();
 			dahlMovement(m);
 			}
 		
-		else if(m.getType().equals("onil") || m.getType().equals("minvo")){
+		else if(m.getType().equals("onil") || m.getType().equals("minvo")){ //these monsters move randomly until they are close to the player
 			m.addToSpriteCounter();
 			int estimateDist = (int)(Math.abs((m.getX()+15.5)/45-(p.getX()-mx+15.5)/45)) + (int)(Math.abs((m.getY()+15.5-65)/45-(p.getY()+15.5-65)/45));
 			ArrayList<Integer> v = new ArrayList<Integer>(); 
@@ -1436,24 +1449,24 @@ class GamePanel extends JPanel implements KeyListener{
 			}
 		}
 		
-		else if(m.getType().equals("doria") || m.getType().equals("pontan")){
+		else if(m.getType().equals("doria") || m.getType().equals("pontan")){ //these monsters can pass through soft blocks and chase after the player
 			m.addToSpriteCounter();
 			targetMovement(m,nodesPassSoftBlocks);
 		}
 		
-		else if(m.getType().equals("ovape")){
+		else if(m.getType().equals("ovape")){ //these monsters move randomly and is able to pass through soft blocks
 			m.addToSpriteCounter();
 			randomMovement(m);
 		}
 	}
 	
-	public Boolean playerHitMonster(){
+	public Boolean playerHitMonster(){ //returns true if the player is hit by a monster
 		Rectangle pRect = p.getActualRect(mx);
 		
 		for(Monster m: monsters){
 			Rectangle mRect = m.getActualRect();
 			
-			if(pRect.intersects(mRect)){
+			if(m.getState() && p.getState() && pRect.intersects(mRect)){
 				//System.out.println("player hit monster");
 				lives-=1;
 				return true;
@@ -1462,28 +1475,12 @@ class GamePanel extends JPanel implements KeyListener{
 		return false;
 	}
 	
-	/*public Boolean bombHitMonster(Monster m){
-		return false;
-		}*/
-		
-	public Node getNode(Node[][] nodes, int x, int y)
-	{
-		if (x >= 0 && x < 27 && y >= 0 && y < 13)
-		{
-			return nodes[x][y];
-		}
-		else
-		{
-			return null;
-		}
-	}
 	
-	public ArrayList<Integer> getArray(Monster m,List<Node> linkedList){
+	public ArrayList<Integer> getArray(Monster m,List<Node> linkedList){ //takes in the shortest path and converts it into an array of directions
 		List<Node> t = new ArrayList<Node>();
    		t.addAll(linkedList);
    		ArrayList<Integer> al = new ArrayList<Integer>();
    		
-   		//System.out.printf("Monster X: %d  Monster Y: %d\n",(int)(Math.round(m.getX()+15.5)/45),(int)(Math.round(m.getY()+15.5-65)/45));
    		if(t.size()>0){
    			if(t.get(0).getX()<(int)(Math.round(m.getX()+15.5)/45)){
 				al.add(LEFT);
@@ -1513,9 +1510,26 @@ class GamePanel extends JPanel implements KeyListener{
    				al.add(UP);
    				}
    			}
-  		//System.out.println(al.size());
    		return al;
 		}
+		
+		
+	//-----------------------------------------------------------------------------------------------------------------------
+	//FINDING THE SHORTEST PATH TO THE PLAYER 
+	//COPIED FROM THE INTERNET (https://github.com/xito313/java-a-star/blob/master/src/game/astar/Node.java)
+	//WITH MINOR CHANGES
+	//USES A* ALGORITHM TO CALCULATE THE PATH
+	public Node getNode(Node[][] nodes, int x, int y)
+	{
+		if (x >= 0 && x < 27 && y >= 0 && y < 13)
+		{
+			return nodes[x][y];
+		}
+		else
+		{
+			return null;
+		}
+	}
 	
 	public final List<Node> findPath(Node[][] nodes, int startX, int startY, int goalX, int goalY)
 	{
@@ -1550,10 +1564,6 @@ class GamePanel extends JPanel implements KeyListener{
 			closedList.add(current);
 
 			// If the current node position is equal to the goal position ...
-			//System.out.println(nodes[1][3]);
-			//System.out.println(current.getX());
-			//System.out.println(current.getY());
-		
 			if ((current.getX() == goalX) && (current.getY() == goalY))
 			{
 				// Return a LinkedList containing all of the visited nodes.
@@ -1705,6 +1715,7 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 		return adjacentNodes;
 	}
+	//-------------------------------------------------------------------------------------------------------------------------------
 
 	
 	public void bombHitMonster(Rectangle r){
@@ -1712,44 +1723,45 @@ class GamePanel extends JPanel implements KeyListener{
 
 		//Rectangle rect = new Rectangle((int)r.getX(),(int)r.getY(),(int)r.getWidth(),(int)r.getHeight());
 
-		for(int i = 0; i < monsters.size(); i ++){
-			Rectangle monRect = monsters.get(i).getActualRect();
-			//Rectangle bombRect = grid[b.getY()][b.getX()];
-
-			//System.out.println("RECT >> X: "+monsters.get(i).getX()+"    Y: "+monsters.get(i).getY());
-
-			//if(monRect.intersects(r)){
-				//System.out.println("HI");
-			//	hits.add(monsters.get(i));
-			//}
-
-			if(monRect.intersects(r)){
-				//System.out.println("BOO");
-				hits.add(monsters.get(i));
+		for(Monster m: monsters){
+			if(m.getState()){
+				Rectangle monRect = m.getActualRect();
+				//Rectangle bombRect = grid[b.getY()][b.getX()];
+	
+				//System.out.println("RECT >> X: "+monsters.get(i).getX()+"    Y: "+monsters.get(i).getY());
+	
+				//if(monRect.intersects(r)){
+					//System.out.println("HI");
+				//	hits.add(monsters.get(i));
+				//}
+	
+				if(monRect.intersects(r)){
+					//System.out.println("BOO");
+					hits.add(m);
+				}	
 			}
 		}
 
 		
 		if(hits.size() > 0){
 			for(Monster m : hits){
-				points += m.getPoints();
-				monsters.remove(m);
-				monstersKilled++;
+				if(m.getState()){
+					points += m.getPoints();
+					m.setState(false);
+					monstersKilled++;
+				}
 			}
 		}
 
 		//return hits;
 	}
 	
-	public boolean foundDoor(){
+	public boolean foundDoor(){ //returns true if the player is at the door and presses enter to go to the next level
 		if(gate.intersects(p.getActualRect(mx)) && keys[KeyEvent.VK_ENTER]){
-			System.out.println("found the door, standing on it");
 			return true;
 		}
 		return false;
 	}
-
-	//------------------------------------------------------------------------------------------------------------
 	
 	public void newGrid(Block grid[][]){ //resets the 2D grid of the map with the borders and hardblocks
 		nodesAll = new Node[27][13];
@@ -1788,7 +1800,7 @@ class GamePanel extends JPanel implements KeyListener{
 		}
 	}
 	
-	public void addSoftBlocks(int num){
+	public void addSoftBlocks(int num){ //randomly generates the indicated amount of soft blocks and adds the gate underneath one of the the soft blocks 
 		Random rand = new Random();
 		ArrayList<Rectangle> allSoftBlocks = new ArrayList<Rectangle>();
 		
@@ -1818,8 +1830,6 @@ class GamePanel extends JPanel implements KeyListener{
 		for(int i = 0; i < 2; i++){
 			randPowerUp(randGate,allSoftBlocks);
 		}
-
-		//gate = allSoftBlocks.get(randGate);
 	}
 
 	public void randPowerUp(int g,ArrayList<Rectangle> s){

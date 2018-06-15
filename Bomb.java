@@ -5,7 +5,7 @@ import java.awt.Rectangle;
 import java.util.*;
 
 public class Bomb{
-	private int bx, by;
+	private int bx, by, spriteCounter;
 	private int bombRange;
 	private Rectangle bRect;
 	private int detonateTime, explosionTime;
@@ -18,7 +18,7 @@ public class Bomb{
 	public Bomb(int x, int y){
 		bx = x;
 		by = y;
-
+		spriteCounter = 0;
 		bRect = new Rectangle(bx,by,45,45);
 		
 		/*for(Rectangle r : explodeRects){
@@ -27,7 +27,7 @@ public class Bomb{
 		//resetPos();
 
 		detonateTime = 70;
-		explosionTime = 50;
+		explosionTime = 14;
 
 		bombRange = 1;
 		//activeBombs = ;
@@ -56,7 +56,11 @@ public class Bomb{
 	public int getBY(){
 		return by;
 	}
-
+	
+	public int getSpriteCounter(){
+		return spriteCounter;
+		}
+	
 	public boolean getStatus(){
 		return done;
 	}
@@ -92,7 +96,7 @@ public class Bomb{
 		}
 	}
 
-	public void noActiveBombs(){
+	/*public void noActiveBombs(){
 		int totBombs = 0;
 		for(int i = 0; i < 4; i++){
 			for(int j = 0; j < 5; j++){
@@ -104,14 +108,21 @@ public class Bomb{
 			detonateTime = 0;
 			explosionTime = 0;
 		}
-	}
+	}*/
 
 	public int getDT(){
 		return detonateTime;
 	}
+	
+	public int getExplosionStage(){
+		return (int)(explosionTime/2);
+		}
 
 	public void tickDT(){
 		detonateTime -= 1;
+		spriteCounter ++;
+		
+		//System.out.println(spriteCounter);
 	}
 
 	public int getET(){
@@ -155,10 +166,10 @@ public class Bomb{
 		System.out.println(direction + " : "+ Arrays.toString(blockedDirections[direction]));
 	}
 
-	public int countEmpty(int n){
+	public int countEmpty(int d){
 		int count = 0;
 		for(int i = 0; i < 5; i++){
-			if(blockedDirections[n][i] == 0){
+			if(blockedDirections[d][i] == 0){
 				count += 1;
 			}
 		}

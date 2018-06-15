@@ -5,9 +5,11 @@ import java.awt.Rectangle;
 
 public class Player{
 	private int cx,cy; //player's coords
+	private int deathTimer;
 	private int direction = 1;
 	private int spriteCounter;
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
+	public boolean alive;
 
 	//Rectangle uRect, dRect, lRect, rRect;
 	private Rectangle borderRect;
@@ -19,6 +21,8 @@ public class Player{
 	public Player(){
 		cx = 52;
 		cy = 117;
+		deathTimer = 60;
+		alive = true;
 
 		borderRect = new Rectangle(cx, cy - 3, 31, 37);
 		actualRect = new Rectangle(cx, cy, 31, 31);
@@ -118,5 +122,25 @@ public class Player{
 	public boolean passBomb(){
 		return bombPass;
 	}
+	
+	public void setState(boolean b){
+    	alive = b;
+    }
+    
+    public boolean getState(){
+    	return alive;
+    }
+    	
+    public void deathTimerTick(){
+    	deathTimer--;
+    }
+    	
+    public int getDeathStage(){
+    	return 6-(int)(deathTimer/10);
+    }
+    
+    public int getDeathTimer(){
+    	return deathTimer;
+    	}
 
 }

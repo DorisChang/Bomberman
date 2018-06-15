@@ -1,16 +1,14 @@
 //Monster.java
-//monster objects for all the enemies in the game
-
-//https://strategywiki.org/wiki/Super_Bomberman/Enemies
-//http://bomberman.wikia.com/wiki/Bomberman_(NES)
+//Monster objects for all the enemies in the game.
 
 import java.awt.Rectangle;
 import java.util.*;
 
 public class Monster {
 	double x, y, speed; 
-	int mx, hits, points, currentDirection,spriteCounter; 
+	int mx, hits, points, currentDirection, spriteCounter, deathTimer; 
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
+	public boolean alive;
 	String type;
 	ArrayList<Integer> path;
 	private Rectangle borderRect; //a 45 x 45 square that is used for keeping the monster in the middle of aisles 
@@ -29,17 +27,8 @@ public class Monster {
     	path = p;
     	actualRect = new Rectangle((int)(x) , (int)(y) , 31, 31);
     	borderRect = new Rectangle((int)(x - 7), (int)(y - 7), 45, 45);
-    	
-    	/*path.add(LEFT);
-    	path.add(RIGHT);
-		path.add(DOWN);
-		path.add(LEFT);
-		path.add(RIGHT);
-		path.add(DOWN);
-		path.add(LEFT);
-		path.add(RIGHT);
-		path.add(DOWN);
-		path.add(LEFT);*/
+    	deathTimer = 40;
+    	alive = true;
     }
     
     public double getX(){
@@ -50,7 +39,7 @@ public class Monster {
     	return y;
     }
 
-    public int getSpriteCounter(){
+    public int getSpriteCounter(){ //used to determine which sprite should be used
         return spriteCounter;
     }
         
@@ -74,7 +63,7 @@ public class Monster {
     	return path;
     }
     	
-    public Rectangle getActualRect(){
+    public Rectangle getActualRect(){ //used for detecting collisons
     	actualRect.setLocation((int)(x), (int)(y));
     	return actualRect;
     }
@@ -104,23 +93,18 @@ public class Monster {
     	return currentDirection;
     }
     	
-    public void moveStraight(double n){
- 		//System.out.println(currentDirection);
+    public void moveStraight(double n){ //keep moving in the current direction
     	if(currentDirection==LEFT){
     		moveLeft(n);
-            //spriteCounter++;
     	}
     	if(currentDirection==RIGHT){
     		moveRight(n);
-            //spriteCounter++;
     	}
     	if(currentDirection==UP){
     		moveUp(n);
-            //spriteCounter++;
     	}
     	if(currentDirection==DOWN){
     		moveDown(n);
-            //spriteCounter++;
     	}
     }
     
@@ -129,7 +113,7 @@ public class Monster {
 		return borderRect;
 	}
 	
-	public Rectangle getRightRect(){
+	public Rectangle getRightRect(){ //returns the rectangle next to it, used for collisions
 		Rectangle tempRect = new Rectangle((int)(x-7), (int)(y - 7),46,45);
 		return tempRect;
 	}
@@ -161,5 +145,20 @@ public class Monster {
     public void moveRight(double n){
     	x+=n;
     }
+    
+    public void setState(boolean b){
+    	alive = b;
+   	}
+    
+    public boolean getState(){ //check if the monster has died 
+    	return alive;
+   	}
     	
+    public void deathTimerTick(){ //keep counting down the death timer
+    	deathTimer--;
+   	}
+   	
+    public int getDeathStage(){ //returns which phase of death should be shown on the screen
+    	return 4-(int)(deathTimer/10);
+   	}
 }

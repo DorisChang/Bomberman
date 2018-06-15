@@ -1,10 +1,11 @@
+//Node.java
+//USED FOR FINDING THE SHORTEST PATH
+//COPIED FROM THE INTERNET (https://github.com/xito313/java-a-star/blob/master/src/game/astar/Node.java)
 
 public class Node{
-
 	/**
 	 * How much it costs to move orthogonally from one node to another.
 	 */
-	protected static final int MOVEMENT_COST = 10;
 	private int cost;
 	/**
 	 * The node's X position on the map.
