@@ -19,7 +19,7 @@ public class Powerup{
 	private int type;
 
 	public Powerup(int x,int y,int t){
-		r = new Rectangle(x+3,y+3,37,37);
+		r = new Rectangle(x,y,37,37);
 		type = t;
 	}
 

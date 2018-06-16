@@ -67,6 +67,14 @@ public class Monster {
     	actualRect.setLocation((int)(x), (int)(y));
     	return actualRect;
     }
+
+    public void setType(String info){
+        String [] infoList = info.split(",");
+        type = infoList[0];
+        speed = Double.parseDouble(infoList[1]);
+        hits = Integer.parseInt(infoList[2]);
+        points = Integer.parseInt(infoList[3]);
+    }
     	
     public int setHits(int n){ //decrease the number of lives of a monster
     	hits -= n;

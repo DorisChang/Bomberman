@@ -11,11 +11,9 @@ public class Player{
 	public static final int RIGHT = 1, LEFT = 2, UP = 3, DOWN = 4;
 	public boolean alive;
 
-	//Rectangle uRect, dRect, lRect, rRect;
-	private Rectangle borderRect;
-	private Rectangle actualRect;
+	private Rectangle borderRect; //square that borders the player
+	private Rectangle actualRect; //actual place of player
 
-	private int speedLvl;
 	private boolean wallPass,bombPass,flamePass;
 
 	public Player(){
@@ -26,6 +24,10 @@ public class Player{
 
 		borderRect = new Rectangle(cx, cy - 3, 31, 37);
 		actualRect = new Rectangle(cx, cy, 31, 31);
+
+		wallPass = false;
+		bombPass = false;
+		flamePass = false;
 	}
 
 	public int getX(){
@@ -62,6 +64,7 @@ public class Player{
 		return borderRect;
 	}
 	
+	//check around the player
 	public Rectangle getRightRect(int mx){
 		Rectangle tempRect = new Rectangle(cx-3-mx, cy-3,40,37);
 		return tempRect;
@@ -107,11 +110,19 @@ public class Player{
 		borderRect.setLocation(cx-3,cy-3);
 	}
 
-	public int getSpeed(){
-		return speedLvl;
+	public void canPassWalls(){
+		wallPass = true;
 	}
 
-	public boolean passWalls(){
+	public void canPassBombs(){
+		bombPass = true;
+	}
+
+	public void canPassFlames(){
+		flamePass = true;
+	}
+
+	public boolean passWall(){
 		return wallPass;
 	}
 
